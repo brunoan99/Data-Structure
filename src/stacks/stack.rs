@@ -63,6 +63,26 @@ where
       },
     }
   }
+
+  pub fn any(stack: &Self, f: fn(&T) -> bool) -> bool {
+    match stack {
+      Self::Empty => false,
+      Self::Node(value, stack_remaining) => match f(value) {
+        true => true,
+        false => Self::any(&stack_remaining, f),
+      },
+    }
+  }
+
+  pub fn all(stack: &Self, f: fn(&T) -> bool) -> bool {
+    match stack {
+      Self::Empty => true,
+      Self::Node(value, stack_remaining) => match f(value) {
+        true => Self::all(&stack_remaining, f),
+        false => false,
+      },
+    }
+  }
 }
 
 #[cfg(test)]

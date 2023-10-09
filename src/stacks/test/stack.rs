@@ -174,3 +174,69 @@ fn test_filter_to_non_empty() {
   let expected = StackT::Node(2, Box::new(Stack::Empty));
   assert_eq!(op, expected);
 }
+
+#[test]
+fn test_any_to_empty() {
+  let stack = StackT::Empty;
+  let op = StackT::any(&stack, |_| -> bool { true });
+  assert_eq!(op, false);
+}
+
+#[test]
+fn test_any_to_non_empty_whitout_a_true_return() {
+  let stack = StackT::Node(
+    0,
+    Box::new(StackT::Node(
+      1,
+      Box::new(Stack::Node(2, Box::new(Stack::Empty))),
+    )),
+  );
+  let op = StackT::any(&stack, |_| -> bool { false });
+  assert_eq!(op, false);
+}
+
+#[test]
+fn test_any_to_non_empty_with_a_true_return() {
+  let stack = StackT::Node(
+    0,
+    Box::new(StackT::Node(
+      1,
+      Box::new(Stack::Node(2, Box::new(Stack::Empty))),
+    )),
+  );
+  let op = StackT::any(&stack, |item| -> bool { item > &1 });
+  assert_eq!(op, true);
+}
+
+#[test]
+fn test_all_to_empty() {
+  let stack = StackT::Empty;
+  let op = StackT::all(&stack, |_| -> bool { false });
+  assert_eq!(op, true);
+}
+
+#[test]
+fn test_all_to_non_empty_with_a_false_return() {
+  let stack = StackT::Node(
+    0,
+    Box::new(StackT::Node(
+      1,
+      Box::new(Stack::Node(2, Box::new(Stack::Empty))),
+    )),
+  );
+  let op = StackT::all(&stack, |item| -> bool { item > &1 });
+  assert_eq!(op, false);
+}
+
+#[test]
+fn test_all_to_non_empty_without_a_false_return() {
+  let stack = StackT::Node(
+    0,
+    Box::new(StackT::Node(
+      1,
+      Box::new(Stack::Node(2, Box::new(Stack::Empty))),
+    )),
+  );
+  let op = StackT::all(&stack, |item| -> bool { item >= &0 });
+  assert_eq!(op, true);
+}
