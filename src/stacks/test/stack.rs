@@ -48,6 +48,42 @@ fn test_pop_to_non_empty() {
 }
 
 #[test]
+fn test_pop_until_empty() {
+  let s0 = Stack::Node(
+    3,
+    Box::new(Stack::Node(
+      2,
+      Box::new(Stack::Node(
+        1,
+        Box::new(Stack::Node(0, Box::new(Stack::Empty))),
+      )),
+    )),
+  );
+
+  let op0 = Stack::pop(&s0);
+  assert_eq!(op0.is_some(), true);
+  let (v0, s1) = op0.unwrap();
+  assert_eq!(v0, 3);
+
+  let op1 = Stack::pop(&s1);
+  assert_eq!(op1.is_some(), true);
+  let (v1, s2) = op1.unwrap();
+  assert_eq!(v1, 2);
+
+  let op2 = Stack::pop(&s2);
+  assert_eq!(op2.is_some(), true);
+  let (v2, s3) = op2.unwrap();
+  assert_eq!(v2, 1);
+
+  let op3 = Stack::pop(&s3);
+  assert_eq!(op3.is_some(), true);
+  let (v3, s4) = op3.unwrap();
+  assert_eq!(v3, 0);
+
+  assert_eq!(s4, Stack::Empty)
+}
+
+#[test]
 fn test_peek_to_empty() {
   let stack = StackT::Empty;
   let op = StackT::peek(&stack);
