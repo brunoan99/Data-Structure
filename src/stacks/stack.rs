@@ -32,13 +32,32 @@ where
     }
   }
 
+  fn rev_aux(stack: &Self, aux: Self) -> Self {
+    match stack {
+      Self::Empty => aux,
+      Self::Node(value, stack_remaining) => {
+        Self::rev_aux(stack_remaining, Self::push(&aux, value.clone()))
+      }
+    }
+  }
+
+  pub fn rev(stack: &Self) -> Self {
+    match stack {
+      Self::Empty => Self::Empty,
+      Self::Node(..) => Self::rev_aux(stack, Stack::Empty),
+    }
+  }
+
   pub fn find(stack: &Self, f: fn(&T) -> bool) -> Option<&T> {
     match stack {
       Self::Empty => None,
-      Self::Node(value, stack_remaining) => match f(value) {
-        true => Some(value),
-        false => Self::find(stack_remaining, f),
-      },
+      Self::Node(value, stack_remaining) => {
+        if f(value) {
+          Some(value)
+        } else {
+          Self::find(stack_remaining, f)
+        }
+      }
     }
   }
 
@@ -57,30 +76,39 @@ where
   pub fn filter(stack: &Self, f: fn(&T) -> bool) -> Self {
     match stack {
       Self::Empty => Self::Empty,
-      Self::Node(value, stack_remaining) => match f(value) {
-        true => Self::Node(value.clone(), Box::new(Self::filter(stack_remaining, f))),
-        false => Self::filter(stack_remaining, f),
-      },
+      Self::Node(value, stack_remaining) => {
+        if f(value) {
+          Self::Node(value.clone(), Box::new(Self::filter(stack_remaining, f)))
+        } else {
+          Self::filter(stack_remaining, f)
+        }
+      }
     }
   }
 
   pub fn any(stack: &Self, f: fn(&T) -> bool) -> bool {
     match stack {
       Self::Empty => false,
-      Self::Node(value, stack_remaining) => match f(value) {
-        true => true,
-        false => Self::any(&stack_remaining, f),
-      },
+      Self::Node(value, stack_remaining) => {
+        if f(value) {
+          true
+        } else {
+          Self::any(stack_remaining, f)
+        }
+      }
     }
   }
 
   pub fn all(stack: &Self, f: fn(&T) -> bool) -> bool {
     match stack {
       Self::Empty => true,
-      Self::Node(value, stack_remaining) => match f(value) {
-        true => Self::all(&stack_remaining, f),
-        false => false,
-      },
+      Self::Node(value, stack_remaining) => {
+        if f(value) {
+          Self::all(stack_remaining, f)
+        } else {
+          false
+        }
+      }
     }
   }
 }

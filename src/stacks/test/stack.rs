@@ -99,6 +99,39 @@ fn test_peek_to_non_empty() {
 }
 
 #[test]
+fn test_rev_to_empty() {
+  let stack = StackT::Empty;
+  let op = Stack::rev(&stack);
+  assert_eq!(op, Stack::Empty);
+}
+
+#[test]
+fn test_rev_to_non_empty() {
+  let stack = Stack::Node(
+    3,
+    Box::new(Stack::Node(
+      2,
+      Box::new(Stack::Node(
+        1,
+        Box::new(Stack::Node(0, Box::new(Stack::Empty))),
+      )),
+    )),
+  );
+  let op = Stack::rev(&stack);
+  let expected = Stack::Node(
+    0,
+    Box::new(Stack::Node(
+      1,
+      Box::new(Stack::Node(
+        2,
+        Box::new(Stack::Node(3, Box::new(Stack::Empty))),
+      )),
+    )),
+  );
+  assert_eq!(op, expected);
+}
+
+#[test]
 fn test_find_to_empty() {
   let stack = StackT::Empty;
   let op = StackT::find(&stack, |item: &i32| -> bool { item == &0 });
