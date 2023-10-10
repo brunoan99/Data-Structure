@@ -4,6 +4,29 @@ pub enum Stack<T> {
   Node(T, Box<Stack<T>>),
 }
 
+mod private {
+  pub use super::Stack;
+
+  pub fn rev_aux<T>(stack: &Stack<T>, aux: Stack<T>) -> Stack<T>
+  where
+    T: PartialEq + Clone,
+  {
+    match stack {
+      Stack::<T>::Empty => aux,
+      Stack::Node(value, stack_remaining) => {
+        rev_aux(stack_remaining, Stack::push(&aux, value.clone()))
+      }
+    }
+  }
+
+  pub fn len_aux<T>(stack: &Stack<T>, acc: i32) -> i32 {
+    match stack {
+      Stack::Empty => acc,
+      Stack::Node(_, stack_remaining) => len_aux(stack_remaining, acc + 1),
+    }
+  }
+}
+
 impl<T> Stack<T>
 where
   T: Clone + PartialEq,
@@ -32,20 +55,12 @@ where
     }
   }
 
-  fn rev_aux(stack: &Self, aux: Self) -> Self {
-    match stack {
-      Self::Empty => aux,
-      Self::Node(value, stack_remaining) => {
-        Self::rev_aux(stack_remaining, Self::push(&aux, value.clone()))
-      }
-    }
+  pub fn len(stack: &Self) -> i32 {
+    private::len_aux(stack, 0)
   }
 
   pub fn rev(stack: &Self) -> Self {
-    match stack {
-      Self::Empty => Self::Empty,
-      Self::Node(..) => Self::rev_aux(stack, Stack::Empty),
-    }
+    private::rev_aux(stack, Stack::Empty)
   }
 
   pub fn find(stack: &Self, f: fn(&T) -> bool) -> Option<&T> {

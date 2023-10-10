@@ -2,23 +2,40 @@ use super::*;
 
 type StackT = Stack<i32>;
 
+fn stack_empty() -> StackT {
+  StackT::Empty
+}
+
+fn stack_filled() -> StackT {
+  Stack::Node(
+    3,
+    Box::new(Stack::Node(
+      2,
+      Box::new(Stack::Node(
+        1,
+        Box::new(Stack::Node(0, Box::new(Stack::Empty))),
+      )),
+    )),
+  )
+}
+
 #[test]
 fn test_is_empty() {
-  let stack = StackT::Empty;
+  let stack = stack_empty();
   let op = StackT::empty(&stack);
   assert_eq!(op, true)
 }
 
 #[test]
 fn test_isnt_empty() {
-  let stack = StackT::Node(0, Box::new(StackT::Empty));
+  let stack = stack_filled();
   let op = StackT::empty(&stack);
   assert_eq!(op, false)
 }
 
 #[test]
 fn test_push_to_empty() {
-  let stack = StackT::Empty;
+  let stack = stack_empty();
   let new_stack = StackT::push(&stack, 0);
   let expected = StackT::Node(0, Box::new(Stack::Empty));
   assert_eq!(new_stack, expected);
@@ -26,15 +43,15 @@ fn test_push_to_empty() {
 
 #[test]
 fn test_push_to_non_empty() {
-  let stack = StackT::Node(0, Box::new(StackT::Empty));
+  let stack = stack_filled();
   let new_stack = StackT::push(&stack, 1);
-  let expected = StackT::Node(1, Box::new(Stack::Node(0, Box::new(Stack::Empty))));
+  let expected = StackT::Node(1, Box::new(stack));
   assert_eq!(new_stack, expected)
 }
 
 #[test]
 fn test_pop_to_empty() {
-  let stack = StackT::Empty;
+  let stack = stack_empty();
   let op = StackT::pop(&stack);
   assert_eq!(op, None);
 }
@@ -49,16 +66,7 @@ fn test_pop_to_non_empty() {
 
 #[test]
 fn test_pop_until_empty() {
-  let s0 = Stack::Node(
-    3,
-    Box::new(Stack::Node(
-      2,
-      Box::new(Stack::Node(
-        1,
-        Box::new(Stack::Node(0, Box::new(Stack::Empty))),
-      )),
-    )),
-  );
+  let s0 = stack_filled();
 
   let op0 = Stack::pop(&s0);
   assert_eq!(op0.is_some(), true);
@@ -85,38 +93,43 @@ fn test_pop_until_empty() {
 
 #[test]
 fn test_peek_to_empty() {
-  let stack = StackT::Empty;
+  let stack = stack_empty();
   let op = StackT::peek(&stack);
   assert_eq!(op, None);
 }
 
 #[test]
 fn test_peek_to_non_empty() {
-  let stack = StackT::Node(0, Box::new(StackT::Empty));
+  let stack = stack_filled();
   let op = StackT::peek(&stack);
-  let expected: Option<&i32> = Some(&0);
+  let expected: Option<&i32> = Some(&3);
   assert_eq!(op, expected);
 }
 
 #[test]
+fn test_len_to_empty() {
+  let stack = stack_empty();
+  let op = StackT::len(&stack);
+  assert_eq!(op, 0)
+}
+
+#[test]
+fn test_len_to_non_empty() {
+  let stack = stack_filled();
+  let op = StackT::len(&stack);
+  assert_eq!(op, 4)
+}
+
+#[test]
 fn test_rev_to_empty() {
-  let stack = StackT::Empty;
+  let stack = stack_empty();
   let op = Stack::rev(&stack);
   assert_eq!(op, Stack::Empty);
 }
 
 #[test]
 fn test_rev_to_non_empty() {
-  let stack = Stack::Node(
-    3,
-    Box::new(Stack::Node(
-      2,
-      Box::new(Stack::Node(
-        1,
-        Box::new(Stack::Node(0, Box::new(Stack::Empty))),
-      )),
-    )),
-  );
+  let stack = stack_filled();
   let op = Stack::rev(&stack);
   let expected = Stack::Node(
     0,
@@ -133,16 +146,16 @@ fn test_rev_to_non_empty() {
 
 #[test]
 fn test_find_to_empty() {
-  let stack = StackT::Empty;
+  let stack = stack_empty();
   let op = StackT::find(&stack, |item: &i32| -> bool { item == &0 });
   assert_eq!(op, None)
 }
 
 #[test]
 fn test_find_to_non_empty() {
-  let stack = StackT::Node(0, Box::new(StackT::Empty));
-  let op = StackT::find(&stack, |item: &i32| -> bool { item == &0 });
-  assert_eq!(op, Some(&0))
+  let stack = stack_filled();
+  let op = StackT::find(&stack, |item: &i32| -> bool { item == &2 });
+  assert_eq!(op, Some(&2))
 }
 
 #[test]
@@ -162,26 +175,23 @@ fn test_find_first_to_non_empty() {
 
 #[test]
 fn test_map_to_empty() {
-  let stack = StackT::Empty;
+  let stack = stack_empty();
   let op = StackT::map(&stack, |item| -> String { item.clone().to_string() });
   assert_eq!(op, Stack::<String>::Empty);
 }
 
 #[test]
 fn test_map_to_non_empty() {
-  let stack = StackT::Node(
-    0,
-    Box::new(StackT::Node(
-      1,
-      Box::new(Stack::Node(2, Box::new(Stack::Empty))),
-    )),
-  );
+  let stack = stack_filled();
   let op = StackT::map(&stack, |item| -> String { item.clone().to_string() });
   let expected = Stack::Node(
-    String::from("0"),
+    String::from("3"),
     Box::new(Stack::Node(
-      String::from("1"),
-      Box::new(Stack::Node(String::from("2"), Box::new(Stack::Empty))),
+      String::from("2"),
+      Box::new(Stack::Node(
+        String::from("1"),
+        Box::new(Stack::Node(String::from("0"), Box::new(Stack::Empty))),
+      )),
     )),
   );
   assert_eq!(op, expected)
@@ -189,87 +199,57 @@ fn test_map_to_non_empty() {
 
 #[test]
 fn test_filter_to_empty() {
-  let stack = StackT::Empty;
+  let stack = stack_empty();
   let op = StackT::filter(&stack, |item| -> bool { item >= &1 });
   assert_eq!(op, StackT::Empty)
 }
 
 #[test]
 fn test_filter_to_non_empty() {
-  let stack = StackT::Node(
-    0,
-    Box::new(StackT::Node(
-      1,
-      Box::new(Stack::Node(2, Box::new(Stack::Empty))),
-    )),
-  );
-  let op = StackT::filter(&stack, |item| -> bool { item > &1 });
+  let stack = stack_filled();
+  let op = StackT::filter(&stack, |item| -> bool { item == &2 });
   let expected = StackT::Node(2, Box::new(Stack::Empty));
   assert_eq!(op, expected);
 }
 
 #[test]
 fn test_any_to_empty() {
-  let stack = StackT::Empty;
+  let stack = stack_empty();
   let op = StackT::any(&stack, |_| -> bool { true });
   assert_eq!(op, false);
 }
 
 #[test]
 fn test_any_to_non_empty_whitout_a_true_return() {
-  let stack = StackT::Node(
-    0,
-    Box::new(StackT::Node(
-      1,
-      Box::new(Stack::Node(2, Box::new(Stack::Empty))),
-    )),
-  );
+  let stack = stack_filled();
   let op = StackT::any(&stack, |_| -> bool { false });
   assert_eq!(op, false);
 }
 
 #[test]
 fn test_any_to_non_empty_with_a_true_return() {
-  let stack = StackT::Node(
-    0,
-    Box::new(StackT::Node(
-      1,
-      Box::new(Stack::Node(2, Box::new(Stack::Empty))),
-    )),
-  );
+  let stack = stack_filled();
   let op = StackT::any(&stack, |item| -> bool { item > &1 });
   assert_eq!(op, true);
 }
 
 #[test]
 fn test_all_to_empty() {
-  let stack = StackT::Empty;
+  let stack = stack_empty();
   let op = StackT::all(&stack, |_| -> bool { false });
   assert_eq!(op, true);
 }
 
 #[test]
 fn test_all_to_non_empty_with_a_false_return() {
-  let stack = StackT::Node(
-    0,
-    Box::new(StackT::Node(
-      1,
-      Box::new(Stack::Node(2, Box::new(Stack::Empty))),
-    )),
-  );
-  let op = StackT::all(&stack, |item| -> bool { item > &1 });
+  let stack = stack_filled();
+  let op = StackT::all(&stack, |item| -> bool { item > &5 });
   assert_eq!(op, false);
 }
 
 #[test]
 fn test_all_to_non_empty_without_a_false_return() {
-  let stack = StackT::Node(
-    0,
-    Box::new(StackT::Node(
-      1,
-      Box::new(Stack::Node(2, Box::new(Stack::Empty))),
-    )),
-  );
+  let stack = stack_filled();
   let op = StackT::all(&stack, |item| -> bool { item >= &0 });
   assert_eq!(op, true);
 }
