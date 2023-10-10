@@ -7,25 +7,6 @@ pub enum Stack<T> {
 mod private {
   pub use super::Stack;
 
-  pub fn rev_aux<T>(stack: &Stack<T>, aux: Stack<T>) -> Stack<T>
-  where
-    T: PartialEq + Clone,
-  {
-    match stack {
-      Stack::<T>::Empty => aux,
-      Stack::Node(value, stack_remaining) => {
-        rev_aux(stack_remaining, Stack::push(&aux, value.clone()))
-      }
-    }
-  }
-
-  pub fn len_aux<T>(stack: &Stack<T>, acc: i32) -> i32 {
-    match stack {
-      Stack::Empty => acc,
-      Stack::Node(_, stack_remaining) => len_aux(stack_remaining, acc + 1),
-    }
-  }
-
   pub fn from_list<T>(v: Vec<T>, acc: Stack<T>) -> Stack<T>
   where
     T: PartialEq + Clone,
@@ -47,6 +28,61 @@ mod private {
         let mut new_acc = acc;
         new_acc.push(value);
         to_list(*stack_remaining.to_owned(), new_acc)
+      }
+    }
+  }
+
+  pub fn rev_aux<T>(stack: &Stack<T>, aux: Stack<T>) -> Stack<T>
+  where
+    T: PartialEq + Clone,
+  {
+    match stack {
+      Stack::<T>::Empty => aux,
+      Stack::Node(value, stack_remaining) => {
+        rev_aux(stack_remaining, Stack::push(&aux, value.clone()))
+      }
+    }
+  }
+
+  pub fn len_aux<T>(stack: &Stack<T>, acc: i32) -> i32 {
+    match stack {
+      Stack::Empty => acc,
+      Stack::Node(_, stack_remaining) => len_aux(stack_remaining, acc + 1),
+    }
+  }
+
+  pub fn concat_aux<T>(s1: &Stack<T>, s2: &Stack<T>, acc: Stack<T>) -> Stack<T>
+  where
+    T: PartialEq + Clone,
+  {
+    match (s1, s2) {
+      (Stack::Empty, Stack::Empty) => acc,
+      (Stack::Node(value, stack_remaining), _) => {
+        concat_aux(stack_remaining, s2, Stack::push(&acc, value.clone()))
+      }
+      (_, Stack::Node(value, stack_remaining)) => {
+        concat_aux(s1, stack_remaining, Stack::push(&acc, value.clone()))
+      }
+    }
+  }
+
+  pub fn split_aux<T>(
+    stack: &Stack<T>,
+    f: fn(&T) -> bool,
+    acc1: Stack<T>,
+    acc2: Stack<T>,
+  ) -> (Stack<T>, Stack<T>)
+  where
+    T: PartialEq + Clone,
+  {
+    match stack {
+      Stack::Empty => (Stack::rev(&acc1), Stack::rev(&acc2)),
+      Stack::Node(value, stack_remaining) => {
+        if f(value) {
+          split_aux(stack_remaining, f, acc1, Stack::push(&acc2, value.clone()))
+        } else {
+          split_aux(stack_remaining, f, Stack::push(&acc1, value.clone()), acc2)
+        }
       }
     }
   }
@@ -142,6 +178,14 @@ where
         }
       }
     }
+  }
+
+  pub fn concat(s1: &Self, s2: &Self) -> Self {
+    private::concat_aux(&Stack::rev(s1), &Stack::rev(&s2), Stack::Empty)
+  }
+
+  pub fn split(stack: &Self, f: fn(&T) -> bool) -> (Stack<T>, Stack<T>) {
+    private::split_aux(stack, f, Stack::Empty, Stack::Empty)
   }
 
   pub fn any(stack: &Self, f: fn(&T) -> bool) -> bool {

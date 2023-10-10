@@ -213,6 +213,112 @@ fn test_filter_to_non_empty() {
 }
 
 #[test]
+fn test_concat_to_both_empty() {
+  let s1 = stack_empty();
+  let s2 = stack_empty();
+  let op = Stack::concat(&s1, &s2);
+  assert_eq!(op, Stack::Empty)
+}
+
+#[test]
+fn test_concat_s1_empty_s2_filled() {
+  let s1 = stack_empty();
+  let s2 = stack_filled();
+  let op = Stack::concat(&s1, &s2);
+  assert_eq!(op, s2)
+}
+
+#[test]
+fn test_concat_s1_filled_s2_empty() {
+  let s1 = stack_filled();
+  let s2 = stack_empty();
+  let op = Stack::concat(&s1, &s2);
+  assert_eq!(op, s1);
+}
+
+#[test]
+fn test_concat_both_filled() {
+  let s1 = Stack::Node(
+    3,
+    Box::new(Stack::Node(
+      2,
+      Box::new(Stack::Node(
+        1,
+        Box::new(Stack::Node(0, Box::new(Stack::Empty))),
+      )),
+    )),
+  );
+  let s2 = Stack::Node(
+    7,
+    Box::new(Stack::Node(
+      6,
+      Box::new(Stack::Node(
+        5,
+        Box::new(Stack::Node(4, Box::new(Stack::Empty))),
+      )),
+    )),
+  );
+  let op = Stack::concat(&s1, &s2);
+  let expected = Stack::Node(
+    7,
+    Box::new(Stack::Node(
+      6,
+      Box::new(Stack::Node(
+        5,
+        Box::new(Stack::Node(
+          4,
+          Box::new(Stack::Node(
+            3,
+            Box::new(Stack::Node(
+              2,
+              Box::new(Stack::Node(
+                1,
+                Box::new(Stack::Node(0, Box::new(Stack::Empty))),
+              )),
+            )),
+          )),
+        )),
+      )),
+    )),
+  );
+  assert_eq!(op, expected);
+}
+
+#[test]
+fn test_split_to_empty() {
+  let stack = stack_empty();
+  let op = Stack::split(&stack, |item| item >= &1);
+  assert_eq!(op, (Stack::Empty, Stack::Empty))
+}
+
+#[test]
+fn test_split_to_filled_with_only_false_returns() {
+  let stack = stack_filled();
+  let op = Stack::split(&stack, |_| false);
+  let expected = (stack_filled(), Stack::Empty);
+  assert_eq!(op, expected)
+}
+
+#[test]
+fn test_split_to_filled_with_only_true_returns() {
+  let stack = stack_filled();
+  let op = Stack::split(&stack, |_| true);
+  let expected = (Stack::Empty, stack_filled());
+  assert_eq!(op, expected)
+}
+
+#[test]
+fn test_split_to_filled_with_balanced_returns() {
+  let stack = stack_filled();
+  let op = Stack::split(&stack, |item| item > &1);
+  let expected = (
+    Stack::Node(1, Box::new(Stack::Node(0, Box::new(Stack::Empty)))),
+    Stack::Node(3, Box::new(Stack::Node(2, Box::new(Stack::Empty)))),
+  );
+  assert_eq!(op, expected)
+}
+
+#[test]
 fn test_any_to_empty() {
   let stack = stack_empty();
   let op = StackT::any(&stack, |_| -> bool { true });
