@@ -9,7 +9,7 @@ mod private {
 
   pub fn from_list<T>(v: Vec<T>, acc: Stack<T>) -> Stack<T>
   where
-    T: PartialEq + Clone,
+    T: PartialEq + Clone + Copy,
   {
     if v.is_empty() {
       acc
@@ -20,7 +20,7 @@ mod private {
 
   pub fn to_list<T>(stack: Stack<T>, acc: Vec<T>) -> Vec<T>
   where
-    T: PartialEq + Clone,
+    T: PartialEq + Clone + Copy,
   {
     match stack {
       Stack::Empty => acc,
@@ -34,7 +34,7 @@ mod private {
 
   pub fn rev_aux<T>(stack: &Stack<T>, aux: Stack<T>) -> Stack<T>
   where
-    T: PartialEq + Clone,
+    T: PartialEq + Clone + Copy,
   {
     match stack {
       Stack::<T>::Empty => aux,
@@ -53,7 +53,7 @@ mod private {
 
   pub fn concat_aux<T>(s1: &Stack<T>, s2: &Stack<T>, acc: Stack<T>) -> Stack<T>
   where
-    T: PartialEq + Clone,
+    T: PartialEq + Clone + Copy,
   {
     match (s1, s2) {
       (Stack::Empty, Stack::Empty) => acc,
@@ -73,7 +73,7 @@ mod private {
     acc2: Stack<T>,
   ) -> (Stack<T>, Stack<T>)
   where
-    T: PartialEq + Clone,
+    T: PartialEq + Clone + Copy,
   {
     match stack {
       Stack::Empty => (Stack::rev(&acc1), Stack::rev(&acc2)),
@@ -90,7 +90,7 @@ mod private {
 
 impl<T> From<Vec<T>> for Stack<T>
 where
-  T: PartialEq + Clone,
+  T: PartialEq + Clone + Copy,
 {
   fn from(value: Vec<T>) -> Self {
     private::from_list(value, Stack::Empty)
@@ -99,7 +99,7 @@ where
 
 impl<T> From<Stack<T>> for Vec<T>
 where
-  T: PartialEq + Clone,
+  T: PartialEq + Clone + Copy,
 {
   fn from(value: Stack<T>) -> Self {
     private::to_list(Stack::rev(&value), vec![])
@@ -108,7 +108,7 @@ where
 
 impl<T> Stack<T>
 where
-  T: Clone + PartialEq,
+  T: PartialEq + Clone + Copy,
 {
   pub fn empty(stack: &Self) -> bool {
     matches!(stack, Self::Empty)
