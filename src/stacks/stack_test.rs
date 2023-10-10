@@ -253,3 +253,44 @@ fn test_all_to_non_empty_without_a_false_return() {
   let op = StackT::all(&stack, |item| -> bool { item >= &0 });
   assert_eq!(op, true);
 }
+
+#[test]
+fn test_from_empty_vec() {
+  let vec: Vec<i32> = vec![];
+  let op = Stack::from(vec);
+  let expected = Stack::Empty;
+  assert_eq!(op, expected)
+}
+
+#[test]
+fn test_from_non_empty_vec() {
+  let vec = vec![0, 1, 2, 3];
+  let op = Stack::from(vec);
+  let expected = Stack::Node(
+    3,
+    Box::new(Stack::Node(
+      2,
+      Box::new(Stack::Node(
+        1,
+        Box::new(Stack::Node(0, Box::new(Stack::Empty))),
+      )),
+    )),
+  );
+  assert_eq!(op, expected)
+}
+
+#[test]
+fn test_to_list_from_empty_stack() {
+  let stack = stack_empty();
+  let op = Vec::from(stack);
+  let expected = vec![];
+  assert_eq!(op, expected);
+}
+
+#[test]
+fn test_to_list_from_non_empty_stack() {
+  let stack = stack_filled();
+  let op = Vec::from(stack);
+  let expected = vec![0, 1, 2, 3];
+  assert_eq!(op, expected);
+}

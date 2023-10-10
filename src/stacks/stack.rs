@@ -25,6 +25,49 @@ mod private {
       Stack::Node(_, stack_remaining) => len_aux(stack_remaining, acc + 1),
     }
   }
+
+  pub fn from_list<T>(v: Vec<T>, acc: Stack<T>) -> Stack<T>
+  where
+    T: PartialEq + Clone,
+  {
+    if v.is_empty() {
+      acc
+    } else {
+      from_list(v[1..].to_vec(), Stack::push(&acc, v[0].clone()))
+    }
+  }
+
+  pub fn to_list<T>(stack: Stack<T>, acc: Vec<T>) -> Vec<T>
+  where
+    T: PartialEq + Clone,
+  {
+    match stack {
+      Stack::Empty => acc,
+      Stack::Node(value, stack_remaining) => {
+        let mut new_acc = acc;
+        new_acc.push(value);
+        to_list(*stack_remaining.to_owned(), new_acc)
+      }
+    }
+  }
+}
+
+impl<T> From<Vec<T>> for Stack<T>
+where
+  T: PartialEq + Clone,
+{
+  fn from(value: Vec<T>) -> Self {
+    private::from_list(value, Stack::Empty)
+  }
+}
+
+impl<T> From<Stack<T>> for Vec<T>
+where
+  T: PartialEq + Clone,
+{
+  fn from(value: Stack<T>) -> Self {
+    private::to_list(Stack::rev(&value), vec![])
+  }
 }
 
 impl<T> Stack<T>
