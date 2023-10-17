@@ -15,6 +15,13 @@ fn stack_filled() -> StackT {
 }
 
 #[test]
+fn new_return_empty() {
+  let op = Stack::<i32>::new();
+  let expected = stack_empty();
+  assert_eq!(op, expected)
+}
+
+#[test]
 fn is_empty() {
   let stack = stack_empty();
   let op = StackT::empty(&stack);

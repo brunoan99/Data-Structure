@@ -130,6 +130,10 @@ impl<T> Stack<T>
 where
   T: PartialEq + Clone + Copy,
 {
+  pub fn new() -> Self {
+    Self::Empty
+  }
+
   pub fn empty(stack: &Self) -> bool {
     matches!(stack, Self::Empty)
   }
