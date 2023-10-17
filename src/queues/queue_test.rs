@@ -849,3 +849,40 @@ fn filter_to_filled_on_both() {
   };
   assert_eq!(op, expected)
 }
+
+#[test]
+fn reduce_to_empty_on_both() {
+  let queue = queue_empty_on_both();
+  let op = Queue::reduce(&queue, |item, acc| acc + item, 0);
+  assert_eq!(op, 0)
+}
+
+#[test]
+fn reduce_to_filled_on_head() {
+  let queue = queue_filled_on_head();
+  let op = Queue::reduce(&queue, |item, acc| acc + item, 0);
+  assert_eq!(op, 6)
+}
+
+#[test]
+fn reduce_to_filled_on_tail() {
+  let queue = queue_filled_on_tail();
+  let op = Queue::reduce(&queue, |item, acc| acc + item, 0);
+  assert_eq!(op, 6)
+}
+
+#[test]
+fn reduce_to_filled_on_both() {
+  let queue = queue_filled_on_both();
+  println!("Start");
+  let op = Queue::reduce(
+    &queue,
+    |item, acc| {
+      println!("Acc: {acc}, Item: {item}");
+      acc + item
+    },
+    0,
+  );
+  println!("End");
+  assert_eq!(op, 28)
+}

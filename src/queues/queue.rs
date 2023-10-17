@@ -187,6 +187,10 @@ where
       tail: Stack::filter(&queue.tail, f),
     }
   }
+
+  pub fn reduce<U>(queue: &Self, f: fn(&T, U) -> U, acc: U) -> U {
+    Stack::reduce(&queue.head, f, Stack::reduce(&queue.tail, f, acc))
+  }
 }
 
 #[cfg(test)]
