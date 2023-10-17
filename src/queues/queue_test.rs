@@ -156,33 +156,64 @@ fn dequeue_to_filled_on_both() {
 }
 
 #[test]
-fn get_to_empty_on_both() {
+fn head_to_empty_on_both() {
   let queue = queue_empty_on_both();
-  let op = Queue::get(&queue);
+  let op = Queue::head(&queue);
   assert_eq!(op, None)
 }
 
 #[test]
-fn get_to_filled_on_head() {
+fn head_to_filled_on_head() {
   let queue = queue_filled_on_head();
-  let op = Queue::get(&queue);
+  let op = Queue::head(&queue);
   let expected = Some(0);
   assert_eq!(op, expected)
 }
 
 #[test]
-fn get_to_filled_on_tail() {
+fn head_to_filled_on_tail() {
   let queue = queue_filled_on_tail();
-  let op = Queue::get(&queue);
+  let op = Queue::head(&queue);
   let expected = Some(0);
   assert_eq!(op, expected)
 }
 
 #[test]
-fn get_to_filled_on_both() {
+fn head_to_filled_on_both() {
   let queue = queue_filled_on_both();
-  let op = Queue::get(&queue);
+  let op = Queue::head(&queue);
   let expected = Some(0);
+  assert_eq!(op, expected)
+}
+
+#[test]
+fn daeh_to_empty_on_both() {
+  let queue = queue_empty_on_both();
+  let op = Queue::daeh(&queue);
+  assert_eq!(op, None)
+}
+
+#[test]
+fn daeh_to_filled_on_head() {
+  let queue = queue_filled_on_head();
+  let op = Queue::daeh(&queue);
+  let expected = Some(3);
+  assert_eq!(op, expected)
+}
+
+#[test]
+fn daeh_to_filled_on_tail() {
+  let queue = queue_filled_on_tail();
+  let op = Queue::daeh(&queue);
+  let expected = Some(3);
+  assert_eq!(op, expected)
+}
+
+#[test]
+fn daeh_to_filled_on_both() {
+  let queue = queue_filled_on_both();
+  let op = Queue::daeh(&queue);
+  let expected = Some(7);
   assert_eq!(op, expected)
 }
 
@@ -381,5 +412,433 @@ fn split_to_filled_on_both_with_only_true_return() {
       tail: node(0, node(1, node(2, node(3, Stack::Empty)))),
     },
   );
+  assert_eq!(op, expected)
+}
+
+#[test]
+fn any_to_empty_with_only_true_return() {
+  let queue = queue_empty_on_both();
+  let op = Queue::any(&queue, |_| true);
+  assert_eq!(op, false)
+}
+
+#[test]
+fn any_to_empty_with_only_false_return() {
+  let queue = queue_empty_on_both();
+  let op = Queue::any(&queue, |_| false);
+  assert_eq!(op, false)
+}
+
+#[test]
+fn any_to_filled_on_head_with_only_true_return() {
+  let queue = queue_filled_on_head();
+  let op = Queue::any(&queue, |_| true);
+  assert_eq!(op, true)
+}
+
+#[test]
+fn any_to_filled_on_head_with_only_false_return() {
+  let queue = queue_filled_on_head();
+  let op = Queue::any(&queue, |_| false);
+  assert_eq!(op, false)
+}
+
+#[test]
+fn any_to_filled_on_tail_with_only_true_return() {
+  let queue = queue_filled_on_tail();
+  let op = Queue::any(&queue, |_| true);
+  assert_eq!(op, true)
+}
+
+#[test]
+fn any_to_filled_on_tail_with_only_false_return() {
+  let queue = queue_filled_on_tail();
+  let op = Queue::any(&queue, |_| false);
+  assert_eq!(op, false)
+}
+
+#[test]
+fn any_to_filled_on_both_with_only_true_return() {
+  let queue = queue_filled_on_both();
+  let op = Queue::any(&queue, |_| true);
+  assert_eq!(op, true)
+}
+
+#[test]
+fn any_to_filled_on_both_without_false_return() {
+  let queue = queue_filled_on_both();
+  let op = Queue::any(&queue, |_| false);
+  assert_eq!(op, false)
+}
+
+#[test]
+fn all_to_empty_with_only_true_return() {
+  let queue = queue_empty_on_both();
+  let op = Queue::all(&queue, |_| true);
+  assert_eq!(op, true)
+}
+
+#[test]
+fn all_to_empty_with_only_false_return() {
+  let queue = queue_empty_on_both();
+  let op = Queue::all(&queue, |_| false);
+  assert_eq!(op, true)
+}
+
+#[test]
+fn all_to_filled_on_head_with_only_true_return() {
+  let queue = queue_filled_on_head();
+  let op = Queue::all(&queue, |_| true);
+  assert_eq!(op, true)
+}
+
+#[test]
+fn all_to_filled_on_head_with_only_false_return() {
+  let queue = queue_filled_on_head();
+  let op = Queue::all(&queue, |_| false);
+  assert_eq!(op, false)
+}
+
+#[test]
+fn all_to_filled_on_tail_with_only_true_return() {
+  let queue = queue_filled_on_tail();
+  let op = Queue::all(&queue, |_| true);
+  assert_eq!(op, true)
+}
+
+#[test]
+fn all_to_filled_on_tail_with_only_false_return() {
+  let queue = queue_filled_on_tail();
+  let op = Queue::all(&queue, |_| false);
+  assert_eq!(op, false)
+}
+
+#[test]
+fn all_to_filled_on_both_with_only_true_return() {
+  let queue = queue_filled_on_both();
+  let op = Queue::all(&queue, |_| true);
+  assert_eq!(op, true)
+}
+
+#[test]
+fn all_to_filled_on_both_with_only_false_return() {
+  let queue = queue_filled_on_both();
+  let op = Queue::all(&queue, |_| false);
+  assert_eq!(op, false)
+}
+
+#[test]
+fn find_to_empty_with_only_false_return() {
+  let queue = queue_empty_on_both();
+  let op = Queue::find(&queue, |_| false);
+  assert_eq!(op, None)
+}
+
+#[test]
+fn find_to_empty_with_only_true_return() {
+  let queue = queue_empty_on_both();
+  let op = Queue::find(&queue, |_| true);
+  assert_eq!(op, None)
+}
+
+#[test]
+fn find_to_filled_on_head_without_match() {
+  let queue = queue_filled_on_tail();
+  let op = Queue::find(&queue, |_| false);
+  assert_eq!(op, None)
+}
+
+#[test]
+fn find_to_filled_on_head_with_match() {
+  let queue = queue_filled_on_head();
+  let op = Queue::find(&queue, |item| item == &1);
+  assert_eq!(op, Some(&1))
+}
+
+#[test]
+fn find_first_to_filled_on_head() {
+  let queue = Queue {
+    head: node(
+      (0, 4),
+      node((0, 3), node((0, 2), node((0, 1), Stack::Empty))),
+    ),
+    tail: Stack::Empty,
+  };
+  let op = Queue::find(&queue, |item| matches!(item, (0, _)));
+  // the first on head filled case is the last pushed on head-stack, then it is (0, 1)
+  assert_eq!(op, Some(&(0, 1)))
+}
+
+#[test]
+fn find_to_filled_on_tail_without_match() {
+  let queue = queue_filled_on_tail();
+  let op = Queue::find(&queue, |_| false);
+  assert_eq!(op, None)
+}
+
+#[test]
+fn find_to_filled_on_tail_with_match() {
+  let queue = queue_filled_on_tail();
+  let op = Queue::find(&queue, |item| item == &1);
+  assert_eq!(op, Some(&1))
+}
+
+#[test]
+fn find_first_to_filled_on_tail() {
+  let queue = Queue {
+    head: Stack::Empty,
+    tail: node(
+      (0, 1),
+      node((0, 2), node((0, 3), node((0, 4), Stack::Empty))),
+    ),
+  };
+  let op = Queue::find(&queue, |item| matches!(item, (0, _)));
+  // the first on tail filled case is the first on tail stack, then it is (0, 1)
+  assert_eq!(op, Some(&(0, 1)))
+}
+
+#[test]
+fn find_to_filled_on_both_without_match() {
+  let queue = queue_filled_on_both();
+  let op = Queue::find(&queue, |_| false);
+  assert_eq!(op, None)
+}
+
+#[test]
+fn find_to_filled_on_both_with_match() {
+  let queue = queue_filled_on_both();
+  let op = Queue::find(&queue, |item| item == &1);
+  assert_eq!(op, Some(&1))
+}
+
+#[test]
+fn find_first_to_filled_on_both() {
+  let queue = Queue {
+    head: node(
+      (0, 8),
+      node((0, 7), node((0, 6), node((0, 5), Stack::Empty))),
+    ),
+    tail: node(
+      (0, 1),
+      node((0, 2), node((0, 3), node((0, 4), Stack::Empty))),
+    ),
+  };
+  let op = Queue::find(&queue, |item| matches!(item, (0, _)));
+  // the first on both filled is just the same as the first on tail.
+  // the first on tail filled is the first on tail stack, then it is (0, 1)
+  assert_eq!(op, Some(&(0, 1)))
+}
+
+#[test]
+fn find_r_to_empty_with_only_false_return() {
+  let queue = queue_empty_on_both();
+  let op = Queue::find_r(&queue, |_| false);
+  assert_eq!(op, None)
+}
+
+#[test]
+fn find_r_to_empty_with_only_true_return() {
+  let queue = queue_empty_on_both();
+  let op = Queue::find_r(&queue, |_| true);
+  assert_eq!(op, None)
+}
+
+#[test]
+fn find_r_to_filled_on_head_without_match() {
+  let queue = queue_filled_on_tail();
+  let op = Queue::find_r(&queue, |_| false);
+  assert_eq!(op, None)
+}
+
+#[test]
+fn find_r_to_filled_on_head_with_match() {
+  let queue = queue_filled_on_head();
+  let op = Queue::find_r(&queue, |item| item % 2 == 0);
+  assert_eq!(op, Some(&2))
+}
+
+#[test]
+fn find_r_first_to_filled_on_head() {
+  let queue = Queue {
+    head: node(
+      (0, 4),
+      node((0, 3), node((0, 2), node((0, 1), Stack::Empty))),
+    ),
+    tail: Stack::Empty,
+  };
+  let op = Queue::find_r(&queue, |item| matches!(item, (0, _)));
+  // the last on head filled case is the head on head-stack, then it is (0, 4)
+  assert_eq!(op, Some(&(0, 4)))
+}
+
+#[test]
+fn find_r_to_filled_on_tail_without_match() {
+  let queue = queue_filled_on_tail();
+  let op = Queue::find_r(&queue, |_| false);
+  assert_eq!(op, None)
+}
+
+#[test]
+fn find_r_to_filled_on_tail_with_match() {
+  let queue = queue_filled_on_tail();
+  let op = Queue::find_r(&queue, |item| item % 2 == 0);
+  assert_eq!(op, Some(&2))
+}
+
+#[test]
+fn find_r_to_filled_on_tail() {
+  let queue = Queue {
+    head: Stack::Empty,
+    tail: node(
+      (0, 1),
+      node((0, 2), node((0, 3), node((0, 4), Stack::Empty))),
+    ),
+  };
+  let op = Queue::find_r(&queue, |item| matches!(item, (0, _)));
+  // the last on tail filled is the last on tail stack, then it is (0, 4)
+  assert_eq!(op, Some(&(0, 4)))
+}
+
+#[test]
+fn find_r_to_filled_on_both_without_match() {
+  let queue = queue_filled_on_both();
+  let op = Queue::find_r(&queue, |_| false);
+  assert_eq!(op, None)
+}
+
+#[test]
+fn find_r_to_filled_on_both_with_match() {
+  let queue = queue_filled_on_both();
+  let op = Queue::find_r(&queue, |item| item % 2 == 0);
+  assert_eq!(op, Some(&6))
+}
+
+#[test]
+fn find_r_to_filled_on_both() {
+  let queue = Queue {
+    head: node(
+      (0, 8),
+      node((0, 7), node((0, 6), node((0, 5), Stack::Empty))),
+    ),
+    tail: node(
+      (0, 1),
+      node((0, 2), node((0, 3), node((0, 4), Stack::Empty))),
+    ),
+  };
+  let op = Queue::find_r(&queue, |item| matches!(item, (0, _)));
+  // the last on both filled is just the same as the last on tail.
+  // the last on tail filled is the last on tail stack, then it is (0, 8)
+  assert_eq!(op, Some(&(0, 8)))
+}
+
+#[test]
+fn map_to_empty_on_both() {
+  let queue = queue_empty_on_both();
+  let op = Queue::map(&queue, |item| item.to_string());
+  let expected = Queue {
+    head: Stack::Empty,
+    tail: Stack::Empty,
+  };
+  assert_eq!(op, expected)
+}
+
+#[test]
+fn map_to_filled_on_head() {
+  let queue = queue_filled_on_head();
+  let op = Queue::map(&queue, |item| item.to_string());
+  let expected: Queue<String> = Queue {
+    head: node(
+      String::from("3"),
+      node(
+        String::from("2"),
+        node(String::from("1"), node(String::from("0"), Stack::Empty)),
+      ),
+    ),
+    tail: Stack::Empty,
+  };
+  assert_eq!(op, expected)
+}
+
+#[test]
+fn map_to_filled_on_tail() {
+  let queue = queue_filled_on_tail();
+  let op = Queue::map(&queue, |item| item.to_string());
+  let expected: Queue<String> = Queue {
+    head: Stack::Empty,
+    tail: node(
+      String::from("0"),
+      node(
+        String::from("1"),
+        node(String::from("2"), node(String::from("3"), Stack::Empty)),
+      ),
+    ),
+  };
+  assert_eq!(op, expected)
+}
+
+#[test]
+fn map_to_filled_on_both() {
+  let queue = queue_filled_on_both();
+  let op = Queue::map(&queue, |item| item.to_string());
+  let expected: Queue<String> = Queue {
+    head: node(
+      String::from("7"),
+      node(
+        String::from("6"),
+        node(String::from("5"), node(String::from("4"), Stack::Empty)),
+      ),
+    ),
+    tail: node(
+      String::from("0"),
+      node(
+        String::from("1"),
+        node(String::from("2"), node(String::from("3"), Stack::Empty)),
+      ),
+    ),
+  };
+  assert_eq!(op, expected)
+}
+
+#[test]
+fn filter_to_empty_on_both() {
+  let queue = queue_empty_on_both();
+  let op = Queue::filter(&queue, |_| true);
+  let expected = Queue {
+    head: Stack::Empty,
+    tail: Stack::Empty,
+  };
+  assert_eq!(op, expected)
+}
+
+#[test]
+fn filter_to_filled_on_head() {
+  let queue = queue_filled_on_head();
+  let op = Queue::filter(&queue, |item| item % 2 == 0);
+  let expected = Queue {
+    head: node(2, node(0, Stack::Empty)),
+    tail: Stack::Empty,
+  };
+  assert_eq!(op, expected)
+}
+
+#[test]
+fn filter_to_filled_on_tail() {
+  let queue = queue_filled_on_tail();
+  let op = Queue::filter(&queue, |item| item % 2 == 0);
+  let expected = Queue {
+    head: Stack::Empty,
+    tail: node(0, node(2, Stack::Empty)),
+  };
+  assert_eq!(op, expected)
+}
+
+#[test]
+fn filter_to_filled_on_both() {
+  let queue = queue_filled_on_both();
+  let op = Queue::filter(&queue, |item| item % 2 == 0);
+  let expected = Queue {
+    head: node(6, node(4, Stack::Empty)),
+    tail: node(0, node(2, Stack::Empty)),
+  };
   assert_eq!(op, expected)
 }

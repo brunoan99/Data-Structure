@@ -73,7 +73,7 @@ where
     }
   }
 
-  pub fn get(queue: &Self) -> Option<T> {
+  pub fn head(queue: &Self) -> Option<T> {
     match &queue {
       Self {
         head: Stack::Empty,
@@ -85,6 +85,24 @@ where
       } => Some(value.clone()),
       Self { head, tail: _ } => {
         let rev = Stack::rev(head).clone();
+        let out = Stack::peek(&rev);
+        out.copied()
+      }
+    }
+  }
+
+  pub fn daeh(queue: &Self) -> Option<T> {
+    match &queue {
+      Self {
+        head: Stack::Empty,
+        tail: Stack::Empty,
+      } => None,
+      Self {
+        head: Stack::Node(value, _),
+        tail: _,
+      } => Some(value.clone()),
+      Self { head: _, tail } => {
+        let rev = Stack::rev(tail).clone();
         let out = Stack::peek(&rev);
         out.copied()
       }
@@ -122,6 +140,45 @@ where
     let (h1, h2) = Stack::split(&queue.head, f);
     let (t1, t2) = Stack::split(&queue.tail, f);
     (Self { head: h1, tail: t1 }, Self { head: h2, tail: t2 })
+  }
+
+  pub fn any(queue: &Self, f: fn(&T) -> bool) -> bool {
+    Stack::any(&queue.head, f) || Stack::any(&queue.tail, f)
+  }
+
+  pub fn all(queue: &Self, f: fn(&T) -> bool) -> bool {
+    Stack::all(&queue.head, f) && Stack::all(&queue.tail, f)
+  }
+
+  pub fn find(queue: &Self, f: fn(&T) -> bool) -> Option<&T> {
+    match Stack::find(&queue.tail, f) {
+      Some(value) => Some(value),
+      None => Stack::find_r(&queue.head, f),
+    }
+  }
+
+  pub fn find_r(queue: &Self, f: fn(&T) -> bool) -> Option<&T> {
+    match Stack::find(&queue.head, f) {
+      Some(value) => Some(value),
+      None => Stack::find_r(&queue.tail, f),
+    }
+  }
+
+  pub fn map<U>(queue: &Self, f: fn(&T) -> U) -> Queue<U>
+  where
+    U: Clone + PartialEq,
+  {
+    Queue {
+      head: Stack::map(&queue.head, f),
+      tail: Stack::map(&queue.tail, f),
+    }
+  }
+
+  pub fn filter(queue: &Self, f: fn(&T) -> bool) -> Self {
+    Queue {
+      head: Stack::filter(&queue.head, f),
+      tail: Stack::filter(&queue.tail, f),
+    }
   }
 }
 
