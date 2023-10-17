@@ -257,6 +257,13 @@ where
       }
     }
   }
+
+  pub fn reduce<U>(stack: &Self, f: fn(&T, U) -> U, acc: U) -> U {
+    match stack {
+      Stack::Empty => acc,
+      Stack::Node(value, stack_remaining) => Self::reduce(stack_remaining, f, f(value, acc)),
+    }
+  }
 }
 
 #[cfg(test)]
