@@ -138,16 +138,21 @@ where
     matches!(stack, Self::Empty)
   }
 
-  #[must_use]
   pub fn push(stack: &Self, item: T) -> Self {
     Self::Node(item, Box::new(stack.clone()))
   }
 
-  #[must_use]
   pub fn pop(stack: &Self) -> Option<(T, Self)> {
     match stack {
       Self::Empty => None,
       Self::Node(value, stack) => Some((value.to_owned(), *stack.clone())),
+    }
+  }
+
+  pub fn drop(stack: &Self) -> Option<Self> {
+    match stack {
+      Self::Node(_, stack_remaining) => Some(*stack_remaining.clone()),
+      Self::Empty => None,
     }
   }
 

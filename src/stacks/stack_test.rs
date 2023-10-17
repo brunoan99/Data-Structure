@@ -109,6 +109,21 @@ fn peek_to_filled() {
 }
 
 #[test]
+fn drop_to_empty() {
+  let stack = stack_empty();
+  let op = Stack::drop(&stack);
+  assert_eq!(op, None);
+}
+
+#[test]
+fn drop_to_filled() {
+  let stack = stack_filled();
+  let op = Stack::drop(&stack);
+  let expected = Some(node(2, node(1, node(0, Stack::Empty))));
+  assert_eq!(op, expected);
+}
+
+#[test]
 fn len_to_empty() {
   let stack = stack_empty();
   let op = Stack::len(&stack);
