@@ -44,6 +44,13 @@ mod private {
     }
   }
 
+  pub fn keep_aux<'a, T>(stack: &'a Stack<T>, acc: Option<&'a T>) -> Option<&'a T> {
+    match stack {
+      Stack::Empty => acc,
+      Stack::Node(value, stack_remaining) => keep_aux(&*stack_remaining, Some(value)),
+    }
+  }
+
   pub fn len_aux<T>(stack: &Stack<T>, acc: i32) -> i32 {
     match stack {
       Stack::Empty => acc,
@@ -161,6 +168,10 @@ where
       Self::Node(value, _) => Some(value),
       Self::Empty => None,
     }
+  }
+
+  pub fn keep(stack: &Self) -> Option<&T> {
+    private::keep_aux(stack, None)
   }
 
   pub fn len(stack: &Self) -> i32 {

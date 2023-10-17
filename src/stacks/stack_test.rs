@@ -94,6 +94,21 @@ fn pop_until_empty() {
 }
 
 #[test]
+fn drop_to_empty() {
+  let stack = stack_empty();
+  let op = Stack::drop(&stack);
+  assert_eq!(op, None);
+}
+
+#[test]
+fn drop_to_filled() {
+  let stack = stack_filled();
+  let op = Stack::drop(&stack);
+  let expected = Some(node(2, node(1, node(0, Stack::Empty))));
+  assert_eq!(op, expected);
+}
+
+#[test]
 fn peek_to_empty() {
   let stack = stack_empty();
   let op = Stack::peek(&stack);
@@ -109,17 +124,17 @@ fn peek_to_filled() {
 }
 
 #[test]
-fn drop_to_empty() {
+fn keep_to_empty() {
   let stack = stack_empty();
-  let op = Stack::drop(&stack);
+  let op = Stack::keep(&stack);
   assert_eq!(op, None);
 }
 
 #[test]
-fn drop_to_filled() {
+fn keep_to_filled() {
   let stack = stack_filled();
-  let op = Stack::drop(&stack);
-  let expected = Some(node(2, node(1, node(0, Stack::Empty))));
+  let op = Stack::keep(&stack);
+  let expected = Some(&0);
   assert_eq!(op, expected);
 }
 
