@@ -133,24 +133,50 @@ fn rev_to_filled() {
 #[test]
 fn find_to_empty() {
   let stack = stack_empty();
-  let op = StackT::find(&stack, |item: &i32| -> bool { item == &0 });
+  let op = Stack::find(&stack, |item: &i32| -> bool { item == &0 });
   assert_eq!(op, None)
 }
 
 #[test]
-fn find_to_filled() {
+fn find_to_filled_with_match() {
   let stack = stack_filled();
-  let op = StackT::find(&stack, |item: &i32| -> bool { item == &2 });
+  let op = Stack::find(&stack, |item: &i32| -> bool { item == &2 });
   assert_eq!(op, Some(&2))
+}
+
+#[test]
+fn find_to_filled_without_match() {
+  let stack = stack_filled();
+  let op = Stack::find(&stack, |item: &i32| -> bool { item == &-1 });
+  assert_eq!(op, None)
 }
 
 #[test]
 fn find_first_to_filled() {
   let stack = node((0, 1), node((0, 2), node((0, 3), Stack::Empty)));
-  let op = Stack::find(&stack, |item: &(i32, i32)| -> bool {
-    matches!(item, (0, _))
-  });
+  let op = Stack::find(&stack, |item| matches!(item, (0, _)));
   assert_eq!(op, Some(&(0, 1)))
+}
+
+#[test]
+fn find_last_to_empty() {
+  let stack = stack_empty();
+  let op = Stack::find_r(&stack, |_| true);
+  assert_eq!(op, None)
+}
+
+#[test]
+fn find_last_to_filled_with_match() {
+  let stack = node((0, 1), node((0, 2), node((0, 3), Stack::Empty)));
+  let op = Stack::find_r(&stack, |item| matches!(item, (0, _)));
+  assert_eq!(op, Some(&(0, 3)))
+}
+
+#[test]
+fn find_last_to_filled_without_match() {
+  let stack = stack_filled();
+  let op = Stack::find_r(&stack, |item: &i32| -> bool { item == &-1 });
+  assert_eq!(op, None)
 }
 
 #[test]

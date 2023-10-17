@@ -18,7 +18,7 @@ mod private {
     }
   }
 
-  pub fn to_list<T>(stack: Stack<T>, acc: Vec<T>) -> Vec<T>
+  pub fn to_list<T>(stack: &Stack<T>, acc: Vec<T>) -> Vec<T>
   where
     T: PartialEq + Clone + Copy,
   {
@@ -26,8 +26,8 @@ mod private {
       Stack::Empty => acc,
       Stack::Node(value, stack_remaining) => {
         let mut new_acc = acc;
-        new_acc.push(value);
-        to_list(*stack_remaining.to_owned(), new_acc)
+        new_acc.push(value.clone());
+        to_list(&*stack_remaining.to_owned(), new_acc)
       }
     }
   }
@@ -86,6 +86,26 @@ mod private {
       }
     }
   }
+
+  pub fn find_r_aux<'a, T>(
+    stack: &'a Stack<T>,
+    f: fn(&T) -> bool,
+    acc: Option<&'a T>,
+  ) -> Option<&'a T>
+  where
+    T: PartialEq + Clone + Copy,
+  {
+    match stack {
+      Stack::Empty => acc,
+      Stack::Node(value, stack_remaining) => {
+        if f(value) {
+          find_r_aux(stack_remaining, f, Some(value))
+        } else {
+          find_r_aux(stack_remaining, f, acc)
+        }
+      }
+    }
+  }
 }
 
 impl<T> From<Vec<T>> for Stack<T>
@@ -102,7 +122,7 @@ where
   T: PartialEq + Clone + Copy,
 {
   fn from(value: Stack<T>) -> Self {
-    private::to_list(Stack::rev(&value), vec![])
+    private::to_list(&Stack::rev(&value), vec![])
   }
 }
 
@@ -155,9 +175,13 @@ where
     }
   }
 
+  pub fn find_r(stack: &Self, f: fn(&T) -> bool) -> Option<&T> {
+    private::find_r_aux(stack, f, None)
+  }
+
   pub fn map<U>(stack: &Self, f: fn(&T) -> U) -> Stack<U>
   where
-    U: Clone + PartialEq,
+    U: PartialEq + Clone,
   {
     match stack {
       Self::Empty => Stack::<U>::Empty,
