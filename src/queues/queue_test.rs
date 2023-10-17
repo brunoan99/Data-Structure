@@ -35,6 +35,13 @@ fn queue_filled_on_both() -> Queue<i32> {
 }
 
 #[test]
+fn new_return_empty() {
+  let op = Queue::<i32>::new();
+  let expected = queue_empty_on_both();
+  assert_eq!(op, expected)
+}
+
+#[test]
 fn is_empty_to_both_empty_on_both() {
   let queue = queue_empty_on_both();
   let op = Queue::empty(&queue);

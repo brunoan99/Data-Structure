@@ -10,6 +10,13 @@ impl<T> Queue<T>
 where
   T: PartialEq + Clone + Copy,
 {
+  pub fn new() -> Self {
+    Self {
+      head: Stack::Empty,
+      tail: Stack::Empty,
+    }
+  }
+
   pub fn empty(queue: &Self) -> bool {
     matches!(
       queue,
