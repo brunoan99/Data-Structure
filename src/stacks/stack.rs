@@ -182,6 +182,40 @@ where
     private::rev_aux(stack, Stack::Empty)
   }
 
+  pub fn concat(s1: &Self, s2: &Self) -> Self {
+    private::concat_aux(&Stack::rev(s1), &Stack::rev(&s2), Stack::Empty)
+  }
+
+  pub fn split(stack: &Self, f: fn(&T) -> bool) -> (Stack<T>, Stack<T>) {
+    private::split_aux(stack, f, Stack::Empty, Stack::Empty)
+  }
+
+  pub fn any(stack: &Self, f: fn(&T) -> bool) -> bool {
+    match stack {
+      Self::Empty => false,
+      Self::Node(value, stack_remaining) => {
+        if f(value) {
+          true
+        } else {
+          Self::any(stack_remaining, f)
+        }
+      }
+    }
+  }
+
+  pub fn all(stack: &Self, f: fn(&T) -> bool) -> bool {
+    match stack {
+      Self::Empty => true,
+      Self::Node(value, stack_remaining) => {
+        if f(value) {
+          Self::all(stack_remaining, f)
+        } else {
+          false
+        }
+      }
+    }
+  }
+
   pub fn find(stack: &Self, f: fn(&T) -> bool) -> Option<&T> {
     match stack {
       Self::Empty => None,
@@ -219,40 +253,6 @@ where
           Self::Node(value.clone(), Box::new(Self::filter(stack_remaining, f)))
         } else {
           Self::filter(stack_remaining, f)
-        }
-      }
-    }
-  }
-
-  pub fn concat(s1: &Self, s2: &Self) -> Self {
-    private::concat_aux(&Stack::rev(s1), &Stack::rev(&s2), Stack::Empty)
-  }
-
-  pub fn split(stack: &Self, f: fn(&T) -> bool) -> (Stack<T>, Stack<T>) {
-    private::split_aux(stack, f, Stack::Empty, Stack::Empty)
-  }
-
-  pub fn any(stack: &Self, f: fn(&T) -> bool) -> bool {
-    match stack {
-      Self::Empty => false,
-      Self::Node(value, stack_remaining) => {
-        if f(value) {
-          true
-        } else {
-          Self::any(stack_remaining, f)
-        }
-      }
-    }
-  }
-
-  pub fn all(stack: &Self, f: fn(&T) -> bool) -> bool {
-    match stack {
-      Self::Empty => true,
-      Self::Node(value, stack_remaining) => {
-        if f(value) {
-          Self::all(stack_remaining, f)
-        } else {
-          false
         }
       }
     }

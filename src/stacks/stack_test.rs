@@ -168,88 +168,6 @@ fn rev_to_filled() {
 }
 
 #[test]
-fn find_to_empty() {
-  let stack = stack_empty();
-  let op = Stack::find(&stack, |item: &i32| -> bool { item == &0 });
-  assert_eq!(op, None)
-}
-
-#[test]
-fn find_to_filled_with_match() {
-  let stack = stack_filled();
-  let op = Stack::find(&stack, |item: &i32| -> bool { item == &2 });
-  assert_eq!(op, Some(&2))
-}
-
-#[test]
-fn find_to_filled_without_match() {
-  let stack = stack_filled();
-  let op = Stack::find(&stack, |item: &i32| -> bool { item == &-1 });
-  assert_eq!(op, None)
-}
-
-#[test]
-fn find_first_to_filled() {
-  let stack = node((0, 1), node((0, 2), node((0, 3), Stack::Empty)));
-  let op = Stack::find(&stack, |item| matches!(item, (0, _)));
-  assert_eq!(op, Some(&(0, 1)))
-}
-
-#[test]
-fn find_last_to_empty() {
-  let stack = stack_empty();
-  let op = Stack::find_r(&stack, |_| true);
-  assert_eq!(op, None)
-}
-
-#[test]
-fn find_last_to_filled_with_match() {
-  let stack = node((0, 1), node((0, 2), node((0, 3), Stack::Empty)));
-  let op = Stack::find_r(&stack, |item| matches!(item, (0, _)));
-  assert_eq!(op, Some(&(0, 3)))
-}
-
-#[test]
-fn find_last_to_filled_without_match() {
-  let stack = stack_filled();
-  let op = Stack::find_r(&stack, |item: &i32| -> bool { item == &-1 });
-  assert_eq!(op, None)
-}
-
-#[test]
-fn map_to_empty() {
-  let stack = stack_empty();
-  let op = StackT::map(&stack, |item| -> String { item.clone().to_string() });
-  assert_eq!(op, Stack::<String>::Empty);
-}
-
-#[test]
-fn map_to_filled() {
-  let stack = stack_filled();
-  let op = Stack::map(&stack, |item| -> String { item.clone().to_string() });
-  let expected: Stack<String> = node(
-    "3".into(),
-    node("2".into(), node("1".into(), node("0".into(), Stack::Empty))),
-  );
-  assert_eq!(op, expected)
-}
-
-#[test]
-fn filter_to_empty() {
-  let stack = stack_empty();
-  let op = Stack::filter(&stack, |item| -> bool { item >= &1 });
-  assert_eq!(op, StackT::Empty)
-}
-
-#[test]
-fn filter_to_filled() {
-  let stack = stack_filled();
-  let op = Stack::filter(&stack, |item| -> bool { item == &2 });
-  let expected = node(2, Stack::Empty);
-  assert_eq!(op, expected);
-}
-
-#[test]
 fn concat_to_both_empty() {
   let s1 = stack_empty();
   let s2 = stack_empty();
@@ -362,6 +280,88 @@ fn all_to_filled_with_only_true_return() {
   let stack = stack_filled();
   let op = Stack::all(&stack, |item| -> bool { item >= &0 });
   assert_eq!(op, true);
+}
+
+#[test]
+fn find_to_empty() {
+  let stack = stack_empty();
+  let op = Stack::find(&stack, |item: &i32| -> bool { item == &0 });
+  assert_eq!(op, None)
+}
+
+#[test]
+fn find_to_filled_with_match() {
+  let stack = stack_filled();
+  let op = Stack::find(&stack, |item: &i32| -> bool { item == &2 });
+  assert_eq!(op, Some(&2))
+}
+
+#[test]
+fn find_to_filled_without_match() {
+  let stack = stack_filled();
+  let op = Stack::find(&stack, |item: &i32| -> bool { item == &-1 });
+  assert_eq!(op, None)
+}
+
+#[test]
+fn find_first_to_filled() {
+  let stack = node((0, 1), node((0, 2), node((0, 3), Stack::Empty)));
+  let op = Stack::find(&stack, |item| matches!(item, (0, _)));
+  assert_eq!(op, Some(&(0, 1)))
+}
+
+#[test]
+fn find_r_to_empty() {
+  let stack = stack_empty();
+  let op = Stack::find_r(&stack, |_| true);
+  assert_eq!(op, None)
+}
+
+#[test]
+fn find_r_to_filled_with_match() {
+  let stack = node((0, 1), node((0, 2), node((0, 3), Stack::Empty)));
+  let op = Stack::find_r(&stack, |item| matches!(item, (0, _)));
+  assert_eq!(op, Some(&(0, 3)))
+}
+
+#[test]
+fn find_r_to_filled_without_match() {
+  let stack = stack_filled();
+  let op = Stack::find_r(&stack, |item: &i32| -> bool { item == &-1 });
+  assert_eq!(op, None)
+}
+
+#[test]
+fn map_to_empty() {
+  let stack = stack_empty();
+  let op = StackT::map(&stack, |item| -> String { item.clone().to_string() });
+  assert_eq!(op, Stack::<String>::Empty);
+}
+
+#[test]
+fn map_to_filled() {
+  let stack = stack_filled();
+  let op = Stack::map(&stack, |item| -> String { item.clone().to_string() });
+  let expected: Stack<String> = node(
+    "3".into(),
+    node("2".into(), node("1".into(), node("0".into(), Stack::Empty))),
+  );
+  assert_eq!(op, expected)
+}
+
+#[test]
+fn filter_to_empty() {
+  let stack = stack_empty();
+  let op = Stack::filter(&stack, |item| -> bool { item >= &1 });
+  assert_eq!(op, StackT::Empty)
+}
+
+#[test]
+fn filter_to_filled() {
+  let stack = stack_filled();
+  let op = Stack::filter(&stack, |item| -> bool { item == &2 });
+  let expected = node(2, Stack::Empty);
+  assert_eq!(op, expected);
 }
 
 #[test]
