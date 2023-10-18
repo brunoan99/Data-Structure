@@ -91,8 +91,8 @@ mod enqueue {
     let queue = setup::queue_empty_on_both();
     let op = Queue::enqueue(&queue, 0);
     let expected = Queue {
-      head: setup::node(0, Stack::Empty),
-      tail: Stack::Empty,
+      head: Stack::Empty,
+      tail: setup::node(0, Stack::Empty),
     };
     assert_eq!(op, expected)
   }
@@ -102,8 +102,14 @@ mod enqueue {
     let queue = setup::queue_filled_on_head();
     let op = Queue::enqueue(&queue, 4);
     let expected = Queue {
-      head: setup::node(4, queue.head),
-      tail: Stack::Empty,
+      head: Stack::Empty,
+      tail: setup::node(
+        0,
+        setup::node(
+          1,
+          setup::node(2, setup::node(3, setup::node(4, Stack::Empty))),
+        ),
+      ),
     };
     assert_eq!(op, expected)
   }

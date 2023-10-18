@@ -28,9 +28,18 @@ where
   }
 
   pub fn enqueue(queue: &Self, item: T) -> Self {
-    Self {
-      head: Stack::push(&queue.head, item),
-      tail: queue.tail.to_owned(),
+    match queue {
+      Self {
+        head: _,
+        tail: Stack::Empty,
+      } => Self {
+        head: Stack::Empty,
+        tail: Stack::rev(&Stack::push(&queue.head, item)),
+      },
+      _ => Self {
+        head: Stack::push(&queue.head, item),
+        tail: queue.tail.to_owned(),
+      },
     }
   }
 
