@@ -17,7 +17,7 @@ where
     }
   }
 
-  pub fn empty(queue: &Self) -> bool {
+  pub fn is_empty(queue: &Self) -> bool {
     matches!(
       queue,
       Self {
