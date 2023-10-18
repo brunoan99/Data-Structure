@@ -141,7 +141,7 @@ where
     Self::Empty
   }
 
-  pub fn empty(stack: &Self) -> bool {
+  pub fn is_empty(stack: &Self) -> bool {
     matches!(stack, Self::Empty)
   }
 
