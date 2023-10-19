@@ -6,10 +6,10 @@ use crate::Stack;
 //    - |head| >= |tail|
 #[derive(Clone, PartialEq, Debug)]
 pub struct BankerQueue<T> {
-  pub head: Stack<T>,
-  pub len_head: i32,
-  pub tail: Stack<T>,
-  pub len_tail: i32,
+  head: Stack<T>,
+  len_head: i32,
+  tail: Stack<T>,
+  len_tail: i32,
 }
 
 impl<T> BankerQueue<T>
@@ -17,16 +17,34 @@ where
   T: PartialEq + Clone + Copy,
 {
   pub fn new() -> Self {
-    todo!()
+    Self {
+      head: Stack::Empty,
+      len_head: 0,
+      tail: Stack::Empty,
+      len_tail: 0,
+    }
   }
 
-  pub fn queue() -> Self {
-    todo!()
+  pub fn queue(head: &Stack<T>, len_head: i32, tail: &Stack<T>, len_tail: i32) -> Self {
+    if len_tail < len_head {
+      BankerQueue {
+        head: head.clone(),
+        len_head: len_head,
+        tail: tail.clone(),
+        len_tail: len_tail,
+      }
+    } else {
+      BankerQueue {
+        head: Stack::Empty,
+        len_head: 0,
+        tail: Stack::concat(tail, &Stack::rev(head)),
+        len_tail: len_tail + len_head,
+      }
+    }
   }
 
   pub fn is_empty(queue: &Self) -> bool {
-    let _ = queue;
-    todo!()
+    queue.len_tail == 0
   }
 
   pub fn enqueue(queue: &Self, item: T) -> Self {
