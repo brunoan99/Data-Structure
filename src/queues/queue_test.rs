@@ -42,6 +42,82 @@ mod new {
     assert_eq!(op, expected)
   }
 }
+
+#[cfg(test)]
+mod queue {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let op = Queue::queue(&Stack::Empty, &Stack::Empty);
+    let expected = setup::queue_empty_on_both();
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_on_head() {
+    let op = Queue::queue(
+      &setup::node(
+        3,
+        setup::node(2, setup::node(1, setup::node(0, Stack::Empty))),
+      ),
+      &Stack::Empty,
+    );
+    let expected = Queue {
+      head: Stack::Empty,
+      tail: setup::node(
+        0,
+        setup::node(1, setup::node(2, setup::node(3, Stack::Empty))),
+      ),
+    };
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_on_tail() {
+    let op = Queue::queue(
+      &Stack::Empty,
+      &setup::node(
+        0,
+        setup::node(1, setup::node(2, setup::node(3, Stack::Empty))),
+      ),
+    );
+    let expected = Queue {
+      head: Stack::Empty,
+      tail: setup::node(
+        0,
+        setup::node(1, setup::node(2, setup::node(3, Stack::Empty))),
+      ),
+    };
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let op = Queue::queue(
+      &setup::node(
+        7,
+        setup::node(6, setup::node(5, setup::node(4, Stack::Empty))),
+      ),
+      &setup::node(
+        0,
+        setup::node(1, setup::node(2, setup::node(3, Stack::Empty))),
+      ),
+    );
+    let expected = Queue {
+      head: setup::node(
+        7,
+        setup::node(6, setup::node(5, setup::node(4, Stack::Empty))),
+      ),
+      tail: setup::node(
+        0,
+        setup::node(1, setup::node(2, setup::node(3, Stack::Empty))),
+      ),
+    };
+    assert_eq!(op, expected)
+  }
+}
+
 #[cfg(test)]
 mod is_empty {
   use super::*;
