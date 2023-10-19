@@ -1,5 +1,7 @@
 use crate::Stack;
 
+// Invariants:
+//    - tail is empty only if head is also empty;
 #[derive(Clone, PartialEq, Debug)]
 pub struct Queue<T> {
   head: Stack<T>,
@@ -17,111 +19,56 @@ where
     }
   }
 
-  pub fn is_empty(queue: &Self) -> bool {
-    matches!(
-      queue,
-      Self {
+  pub fn queue(head: &Stack<T>, tail: &Stack<T>) -> Self {
+    match (head, tail) {
+      (_, Stack::Empty) => Self {
         head: Stack::Empty,
-        tail: Stack::Empty,
-      }
-    )
-  }
-
-  pub fn enqueue(queue: &Self, item: T) -> Self {
-    match queue {
-      Self {
-        head: _,
-        tail: Stack::Empty,
-      } => Self {
-        head: Stack::Empty,
-        tail: Stack::push(&queue.head, item),
+        tail: Stack::rev(&head),
       },
       _ => Self {
-        head: Stack::push(&queue.head, item),
-        tail: queue.tail.to_owned(),
+        head: head.clone(),
+        tail: tail.clone(),
       },
     }
   }
 
+  pub fn is_empty(queue: &Self) -> bool {
+    Stack::is_empty(&queue.tail)
+  }
+
+  pub fn enqueue(queue: &Self, item: T) -> Self {
+    Queue::queue(&Stack::push(&queue.head, item), &queue.tail)
+  }
+
   pub fn dequeue(queue: &Self) -> Option<(T, Self)> {
-    match &queue {
-      Self {
-        head: Stack::Empty,
-        tail: Stack::Empty,
-      } => None,
-      Self {
-        head,
-        tail: Stack::Empty,
-      } => Self::dequeue(&Self {
-        head: Stack::Empty,
-        tail: Stack::rev(&head),
-      }),
-      Self { head, tail } => {
-        let (poped, new_tail) = Stack::pop(&tail).unwrap();
-        Some((
-          poped,
-          Self {
-            head: head.to_owned(),
-            tail: new_tail,
-          },
-        ))
+    match &queue.tail {
+      Stack::Empty => None,
+      Stack::Node(value, stack_remaining) => {
+        Some((value.clone(), Queue::queue(&queue.head, &*stack_remaining)))
       }
     }
   }
 
   pub fn drop(queue: &Self) -> Option<Self> {
-    match &queue {
-      Self {
-        head: Stack::Empty,
-        tail: Stack::Empty,
-      } => None,
-      Self {
-        head,
-        tail: Stack::Empty,
-      } => Self::drop(&Self {
-        head: Stack::Empty,
-        tail: Stack::rev(&head),
-      }),
-      Self { head, tail } => Some(Self {
-        head: head.to_owned(),
-        tail: Stack::pop(&tail).unwrap().1,
-      }),
+    match (&queue.head, &queue.tail) {
+      (Stack::Empty, Stack::Empty) => None,
+      (head, Stack::Empty) => Self::drop(&Queue::queue(&head, &Stack::Empty)),
+      (head, tail) => Some(Queue::queue(&head.clone(), &Stack::pop(&tail).unwrap().1)),
     }
   }
 
   pub fn head(queue: &Self) -> Option<T> {
-    match &queue {
-      Self {
-        head: Stack::Empty,
-        tail: Stack::Empty,
-      } => None,
-      Self {
-        head: _,
-        tail: Stack::Node(value, _),
-      } => Some(value.clone()),
-      Self { head, tail: _ } => {
-        let rev = Stack::rev(head).clone();
-        let out = Stack::peek(&rev);
-        out.copied()
-      }
+    match &queue.tail {
+      Stack::Empty => None,
+      Stack::Node(value, _) => Some(value.clone()),
     }
   }
 
   pub fn daeh(queue: &Self) -> Option<T> {
-    match &queue {
-      Self {
-        head: Stack::Empty,
-        tail: Stack::Empty,
-      } => None,
-      Self {
-        head: Stack::Node(value, _),
-        tail: _,
-      } => Some(value.clone()),
-      Self { head: _, tail } => {
-        let rev = Stack::rev(tail).clone();
-        let out = Stack::peek(&rev);
-        out.copied()
-      }
+    match (&queue.head, &queue.tail) {
+      (_, Stack::Empty) => None,
+      (Stack::Node(value, _), _) => Some(value.clone()),
+      (_, tail) => Stack::peek(&Stack::rev(tail).clone()).copied(),
     }
   }
 
@@ -130,32 +77,23 @@ where
   }
 
   pub fn rev(queue: &Self) -> Self {
-    match &queue {
-      Queue {
-        head: Stack::Node(..),
-        tail: Stack::Node(..),
-      } => Queue {
-        head: queue.tail.to_owned(),
-        tail: queue.head.to_owned(),
-      },
-      Queue { head, tail } => Queue {
-        head: Stack::rev(&head),
-        tail: Stack::rev(&tail),
-      },
+    match queue.tail {
+      Stack::Empty => Queue::new(),
+      Stack::Node(..) => Queue::queue(&queue.tail.clone(), &queue.head.clone()),
     }
   }
 
   pub fn concat(q1: &Self, q2: &Self) -> Self {
-    Self {
-      head: Stack::concat(&Stack::rev(&q2.tail), &q2.head),
-      tail: Stack::concat(&Stack::rev(&q1.head), &q1.tail),
-    }
+    Queue::queue(
+      &Stack::concat(&Stack::rev(&q2.tail), &q2.head),
+      &Stack::concat(&Stack::rev(&q1.head), &q1.tail),
+    )
   }
 
   pub fn split(queue: &Self, f: fn(&T) -> bool) -> (Self, Self) {
     let (h1, h2) = Stack::split(&queue.head, f);
     let (t1, t2) = Stack::split(&queue.tail, f);
-    (Self { head: h1, tail: t1 }, Self { head: h2, tail: t2 })
+    (Queue::queue(&h1, &t1), Queue::queue(&h2, &t2))
   }
 
   pub fn any(queue: &Self, f: fn(&T) -> bool) -> bool {
@@ -182,19 +120,16 @@ where
 
   pub fn map<U>(queue: &Self, f: fn(&T) -> U) -> Queue<U>
   where
-    U: Clone + PartialEq,
+    U: Clone + PartialEq + Copy,
   {
-    Queue {
-      head: Stack::map(&queue.head, f),
-      tail: Stack::map(&queue.tail, f),
-    }
+    Queue::<U>::queue(&Stack::map(&queue.head, f), &Stack::map(&queue.tail, f))
   }
 
   pub fn filter(queue: &Self, f: fn(&T) -> bool) -> Self {
-    Queue {
-      head: Stack::filter(&queue.head, f),
-      tail: Stack::filter(&queue.tail, f),
-    }
+    Queue::queue(
+      &Stack::filter(&queue.head, f),
+      &Stack::filter(&queue.tail, f),
+    )
   }
 
   pub fn reduce<U>(queue: &Self, f: fn(&T, U) -> U, acc: U) -> U {

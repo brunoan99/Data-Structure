@@ -16,13 +16,6 @@ mod setup {
     }
   }
 
-  pub fn queue_filled_on_head() -> Queue<i32> {
-    Queue {
-      head: node(3, node(2, node(1, node(0, Stack::Empty)))),
-      tail: Stack::Empty,
-    }
-  }
-
   pub fn queue_filled_on_tail() -> Queue<i32> {
     Queue {
       head: Stack::Empty,
@@ -61,13 +54,6 @@ mod is_empty {
   }
 
   #[test]
-  fn to_filled_on_head() {
-    let queue = setup::queue_filled_on_head();
-    let op = Queue::is_empty(&queue);
-    assert_eq!(op, false)
-  }
-
-  #[test]
   fn filled_on_tail() {
     let queue = setup::queue_filled_on_tail();
     let op = Queue::is_empty(&queue);
@@ -93,23 +79,6 @@ mod enqueue {
     let expected = Queue {
       head: Stack::Empty,
       tail: setup::node(0, Stack::Empty),
-    };
-    assert_eq!(op, expected)
-  }
-
-  #[test]
-  fn to_filled_on_head() {
-    let queue = setup::queue_filled_on_head();
-    let op = Queue::enqueue(&queue, 4);
-    let expected = Queue {
-      head: Stack::Empty,
-      tail: setup::node(
-        0,
-        setup::node(
-          1,
-          setup::node(2, setup::node(3, setup::node(4, Stack::Empty))),
-        ),
-      ),
     };
     assert_eq!(op, expected)
   }
@@ -146,20 +115,6 @@ mod dequeue {
     let queue = setup::queue_empty_on_both();
     let op = Queue::dequeue(&queue);
     assert_eq!(op, None)
-  }
-
-  #[test]
-  fn to_filled_on_head() {
-    let queue = setup::queue_filled_on_head();
-    let op = Queue::dequeue(&queue);
-    let expected = Some((
-      0,
-      Queue {
-        head: Stack::Empty,
-        tail: setup::node(1, setup::node(2, setup::node(3, Stack::Empty))),
-      },
-    ));
-    assert_eq!(op, expected)
   }
 
   #[test]
@@ -206,14 +161,6 @@ mod head {
   }
 
   #[test]
-  fn to_filled_on_head() {
-    let queue = setup::queue_filled_on_head();
-    let op = Queue::head(&queue);
-    let expected = Some(0);
-    assert_eq!(op, expected)
-  }
-
-  #[test]
   fn to_filled_on_tail() {
     let queue = setup::queue_filled_on_tail();
     let op = Queue::head(&queue);
@@ -242,14 +189,6 @@ mod daeh {
   }
 
   #[test]
-  fn to_filled_on_head() {
-    let queue = setup::queue_filled_on_head();
-    let op = Queue::daeh(&queue);
-    let expected = Some(3);
-    assert_eq!(op, expected)
-  }
-
-  #[test]
   fn to_filled_on_tail() {
     let queue = setup::queue_filled_on_tail();
     let op = Queue::daeh(&queue);
@@ -275,13 +214,6 @@ mod len {
     let queue = setup::queue_empty_on_both();
     let op = Queue::len(&queue);
     assert_eq!(op, 0)
-  }
-
-  #[test]
-  fn to_filled_on_head() {
-    let queue = setup::queue_filled_on_head();
-    let op = Queue::len(&queue);
-    assert_eq!(op, 4)
   }
 
   #[test]
@@ -314,20 +246,6 @@ mod rev {
         tail: Stack::Empty,
       }
     )
-  }
-
-  #[test]
-  fn to_filled_on_head() {
-    let queue = setup::queue_filled_on_head();
-    let op = Queue::rev(&queue);
-    let expected = Queue {
-      head: setup::node(
-        0,
-        setup::node(1, setup::node(2, setup::node(3, Stack::Empty))),
-      ),
-      tail: Stack::Empty,
-    };
-    assert_eq!(op, expected)
   }
 
   #[test]
@@ -377,7 +295,7 @@ mod concat {
 
   #[test]
   fn first_filled_second_empty() {
-    let q1 = setup::queue_filled_on_head();
+    let q1 = setup::queue_filled_on_tail();
     let q2 = setup::queue_empty_on_both();
     let op = Queue::concat(&q1, &q2);
     let expected = Queue {
@@ -393,14 +311,14 @@ mod concat {
   #[test]
   fn first_empty_second_filled() {
     let q1 = setup::queue_empty_on_both();
-    let q2 = setup::queue_filled_on_head();
+    let q2 = setup::queue_filled_on_tail();
     let op = Queue::concat(&q1, &q2);
     let expected = Queue {
-      head: setup::node(
-        3,
-        setup::node(2, setup::node(1, setup::node(0, Stack::Empty))),
+      head: Stack::Empty,
+      tail: setup::node(
+        0,
+        setup::node(1, setup::node(2, setup::node(3, Stack::Empty))),
       ),
-      tail: Stack::Empty,
     };
     assert_eq!(op, expected)
   }
@@ -447,25 +365,6 @@ mod split {
         },
         Queue {
           head: Stack::Empty,
-          tail: Stack::Empty,
-        }
-      )
-    )
-  }
-
-  #[test]
-  fn to_filled_on_head() {
-    let queue = setup::queue_filled_on_head();
-    let op = Queue::split(&queue, |item| item > &1);
-    assert_eq!(
-      op,
-      (
-        Queue {
-          head: setup::node(1, setup::node(0, Stack::Empty)),
-          tail: Stack::Empty,
-        },
-        Queue {
-          head: setup::node(3, setup::node(2, Stack::Empty)),
           tail: Stack::Empty,
         }
       )
@@ -526,20 +425,6 @@ mod any {
   }
 
   #[test]
-  fn to_filled_on_head_with_only_true_return() {
-    let queue = setup::queue_filled_on_head();
-    let op = Queue::any(&queue, |_| true);
-    assert_eq!(op, true)
-  }
-
-  #[test]
-  fn to_filled_on_head_with_only_false_return() {
-    let queue = setup::queue_filled_on_head();
-    let op = Queue::any(&queue, |_| false);
-    assert_eq!(op, false)
-  }
-
-  #[test]
   fn to_filled_on_tail_with_only_true_return() {
     let queue = setup::queue_filled_on_tail();
     let op = Queue::any(&queue, |_| true);
@@ -584,20 +469,6 @@ mod all {
     let queue = setup::queue_empty_on_both();
     let op = Queue::all(&queue, |_| false);
     assert_eq!(op, true)
-  }
-
-  #[test]
-  fn to_filled_on_head_with_only_true_return() {
-    let queue = setup::queue_filled_on_head();
-    let op = Queue::all(&queue, |_| true);
-    assert_eq!(op, true)
-  }
-
-  #[test]
-  fn to_filled_on_head_with_only_false_return() {
-    let queue = setup::queue_filled_on_head();
-    let op = Queue::all(&queue, |_| false);
-    assert_eq!(op, false)
   }
 
   #[test]
@@ -652,13 +523,6 @@ mod find {
     let queue = setup::queue_filled_on_tail();
     let op = Queue::find(&queue, |_| false);
     assert_eq!(op, None)
-  }
-
-  #[test]
-  fn to_filled_on_head_with_match() {
-    let queue = setup::queue_filled_on_head();
-    let op = Queue::find(&queue, |item| item == &1);
-    assert_eq!(op, Some(&1))
   }
 
   #[test]
@@ -774,13 +638,6 @@ mod find_r {
   }
 
   #[test]
-  fn to_filled_on_head_with_match() {
-    let queue = setup::queue_filled_on_head();
-    let op = Queue::find_r(&queue, |item| item % 2 == 0);
-    assert_eq!(op, Some(&2))
-  }
-
-  #[test]
   fn to_filled_on_head_check_if_gets_last() {
     let queue = Queue {
       head: setup::node(
@@ -874,7 +731,7 @@ mod map {
   #[test]
   fn to_empty_on_both() {
     let queue = setup::queue_empty_on_both();
-    let op = Queue::map(&queue, |item| item.to_string());
+    let op = Queue::map(&queue, |item| item + 3);
     let expected = Queue {
       head: Stack::Empty,
       tail: Stack::Empty,
@@ -883,40 +740,14 @@ mod map {
   }
 
   #[test]
-  fn to_filled_on_head() {
-    let queue = setup::queue_filled_on_head();
-    let op = Queue::map(&queue, |item| item.to_string());
-    let expected: Queue<String> = Queue {
-      head: setup::node(
-        String::from("3"),
-        setup::node(
-          String::from("2"),
-          setup::node(
-            String::from("1"),
-            setup::node(String::from("0"), Stack::Empty),
-          ),
-        ),
-      ),
-      tail: Stack::Empty,
-    };
-    assert_eq!(op, expected)
-  }
-
-  #[test]
   fn to_filled_on_tail() {
     let queue = setup::queue_filled_on_tail();
-    let op = Queue::map(&queue, |item| item.to_string());
-    let expected: Queue<String> = Queue {
+    let op = Queue::map(&queue, |item| item + 3);
+    let expected = Queue {
       head: Stack::Empty,
       tail: setup::node(
-        String::from("0"),
-        setup::node(
-          String::from("1"),
-          setup::node(
-            String::from("2"),
-            setup::node(String::from("3"), Stack::Empty),
-          ),
-        ),
+        3,
+        setup::node(4, setup::node(5, setup::node(6, Stack::Empty))),
       ),
     };
     assert_eq!(op, expected)
@@ -925,27 +756,15 @@ mod map {
   #[test]
   fn to_filled_on_both() {
     let queue = setup::queue_filled_on_both();
-    let op = Queue::map(&queue, |item| item.to_string());
-    let expected: Queue<String> = Queue {
+    let op = Queue::map(&queue, |item| item + 3);
+    let expected = Queue {
       head: setup::node(
-        String::from("7"),
-        setup::node(
-          String::from("6"),
-          setup::node(
-            String::from("5"),
-            setup::node(String::from("4"), Stack::Empty),
-          ),
-        ),
+        10,
+        setup::node(9, setup::node(8, setup::node(7, Stack::Empty))),
       ),
       tail: setup::node(
-        String::from("0"),
-        setup::node(
-          String::from("1"),
-          setup::node(
-            String::from("2"),
-            setup::node(String::from("3"), Stack::Empty),
-          ),
-        ),
+        3,
+        setup::node(4, setup::node(5, setup::node(6, Stack::Empty))),
       ),
     };
     assert_eq!(op, expected)
@@ -962,17 +781,6 @@ mod filter {
     let op = Queue::filter(&queue, |_| true);
     let expected = Queue {
       head: Stack::Empty,
-      tail: Stack::Empty,
-    };
-    assert_eq!(op, expected)
-  }
-
-  #[test]
-  fn to_filled_on_head() {
-    let queue = setup::queue_filled_on_head();
-    let op = Queue::filter(&queue, |item| item % 2 == 0);
-    let expected = Queue {
-      head: setup::node(2, setup::node(0, Stack::Empty)),
       tail: Stack::Empty,
     };
     assert_eq!(op, expected)
@@ -1010,13 +818,6 @@ mod reduce {
     let queue = setup::queue_empty_on_both();
     let op = Queue::reduce(&queue, |item, acc| acc + item, 0);
     assert_eq!(op, 0)
-  }
-
-  #[test]
-  fn to_filled_on_head() {
-    let queue = setup::queue_filled_on_head();
-    let op = Queue::reduce(&queue, |item, acc| acc + item, 0);
-    assert_eq!(op, 6)
   }
 
   #[test]
