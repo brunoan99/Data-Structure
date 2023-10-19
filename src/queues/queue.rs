@@ -34,7 +34,7 @@ where
         tail: Stack::Empty,
       } => Self {
         head: Stack::Empty,
-        tail: Stack::rev(&Stack::push(&queue.head, item)),
+        tail: Stack::push(&queue.head, item),
       },
       _ => Self {
         head: Stack::push(&queue.head, item),
