@@ -64,11 +64,11 @@ mod private {
   {
     match (s1, s2) {
       (Stack::Empty, Stack::Empty) => acc,
-      (Stack::Node(value, stack_remaining), _) => {
-        concat_aux(stack_remaining, s2, Stack::push(&acc, value.clone()))
-      }
       (_, Stack::Node(value, stack_remaining)) => {
         concat_aux(s1, stack_remaining, Stack::push(&acc, value.clone()))
+      }
+      (Stack::Node(value, stack_remaining), _) => {
+        concat_aux(stack_remaining, s2, Stack::push(&acc, value.clone()))
       }
     }
   }

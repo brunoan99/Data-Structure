@@ -256,12 +256,12 @@ mod concat {
   #[test]
   fn both_filled() {
     let s1 = setup::node(
-      3,
-      setup::node(2, setup::node(1, setup::node(0, Stack::Empty))),
-    );
-    let s2 = setup::node(
       7,
       setup::node(6, setup::node(5, setup::node(4, Stack::Empty))),
+    );
+    let s2 = setup::node(
+      3,
+      setup::node(2, setup::node(1, setup::node(0, Stack::Empty))),
     );
     let op = Stack::concat(&s1, &s2);
     let expected = setup::node(
