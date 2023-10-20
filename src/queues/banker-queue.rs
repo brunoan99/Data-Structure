@@ -26,12 +26,12 @@ where
   }
 
   pub fn queue(head: &Stack<T>, len_head: i32, tail: &Stack<T>, len_tail: i32) -> Self {
-    if len_tail < len_head {
+    if len_head <= len_tail {
       BankerQueue {
         head: head.clone(),
-        len_head: len_head,
+        len_head,
         tail: tail.clone(),
-        len_tail: len_tail,
+        len_tail,
       }
     } else {
       BankerQueue {
@@ -48,19 +48,39 @@ where
   }
 
   pub fn enqueue(queue: &Self, item: T) -> Self {
-    let _ = queue;
-    let _ = item;
-    todo!()
+    Self::queue(
+      &Stack::push(&queue.head, item),
+      queue.len_head + 1,
+      &queue.tail,
+      queue.len_tail,
+    )
   }
 
   pub fn dequeue(queue: &Self) -> Option<(T, Self)> {
-    let _ = queue;
-    todo!()
+    match &queue.tail {
+      Stack::Empty => None,
+      Stack::Node(value, stack_remaining) => Some((
+        value.clone(),
+        Self::queue(
+          &queue.head,
+          queue.len_head,
+          &stack_remaining,
+          queue.len_tail - 1,
+        ),
+      )),
+    }
   }
 
   pub fn drop(queue: &Self) -> Option<Self> {
-    let _ = queue;
-    todo!()
+    match &queue.tail {
+      Stack::Empty => None,
+      Stack::Node(_, stack_remaining) => Some(Self::queue(
+        &queue.head,
+        queue.len_head,
+        &stack_remaining,
+        queue.len_tail - 1,
+      )),
+    }
   }
 
   pub fn head(queue: &Self) -> Option<T> {
