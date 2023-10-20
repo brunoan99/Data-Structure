@@ -84,18 +84,22 @@ where
   }
 
   pub fn head(queue: &Self) -> Option<T> {
-    let _ = queue;
-    todo!()
+    match &queue.tail {
+      Stack::Empty => None,
+      Stack::Node(value, _) => Some(value.clone()),
+    }
   }
 
   pub fn daeh(queue: &Self) -> Option<T> {
-    let _ = queue;
-    todo!()
+    match (&queue.head, &queue.tail) {
+      (_, Stack::Empty) => None,
+      (Stack::Node(value, _), _) => Some(value.clone()),
+      (_, tail) => Stack::peek(&Stack::rev(tail).clone()).copied(),
+    }
   }
 
   pub fn len(queue: &Self) -> i32 {
-    let _ = queue;
-    todo!()
+    queue.len_head + queue.len_tail
   }
 
   pub fn rev(queue: &Self) -> Self {

@@ -398,3 +398,82 @@ mod drop {
     assert_eq!(op, expected)
   }
 }
+
+#[cfg(test)]
+mod head {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = BankerQueue::head(&queue);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_on_tail() {
+    let queue = setup::queue_filled_on_tail();
+    let op = BankerQueue::head(&queue);
+    assert_eq!(op, Some(0))
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let queue = setup::queue_filled_on_both();
+    let op = BankerQueue::head(&queue);
+    assert_eq!(op, Some(0))
+  }
+}
+
+#[cfg(test)]
+mod daeh {
+
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = BankerQueue::daeh(&queue);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_on_tail() {
+    let queue = setup::queue_filled_on_tail();
+    let op = BankerQueue::daeh(&queue);
+    assert_eq!(op, Some(3))
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let queue = setup::queue_filled_on_both();
+    let op = BankerQueue::daeh(&queue);
+    assert_eq!(op, Some(7))
+  }
+}
+
+#[cfg(test)]
+mod len {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = BankerQueue::len(&queue);
+    assert_eq!(op, 0)
+  }
+
+  #[test]
+  fn to_filled_on_tail() {
+    let queue = setup::queue_filled_on_tail();
+    let op = BankerQueue::len(&queue);
+    assert_eq!(op, 4)
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let queue = setup::queue_filled_on_both();
+    let op = BankerQueue::len(&queue);
+    assert_eq!(op, 8)
+  }
+}
