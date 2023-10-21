@@ -97,11 +97,11 @@ where
   }
 
   pub fn any(queue: &Self, f: fn(&T) -> bool) -> bool {
-    Stack::any(&queue.head, f) || Stack::any(&queue.tail, f)
+    Stack::any(&queue.tail, f) || Stack::any(&queue.head, f)
   }
 
   pub fn all(queue: &Self, f: fn(&T) -> bool) -> bool {
-    Stack::all(&queue.head, f) && Stack::all(&queue.tail, f)
+    Stack::all(&queue.tail, f) && Stack::all(&queue.head, f)
   }
 
   pub fn find(queue: &Self, f: fn(&T) -> bool) -> Option<&T> {

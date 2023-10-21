@@ -176,15 +176,11 @@ where
   }
 
   pub fn any(queue: &Self, f: fn(&T) -> bool) -> bool {
-    let _ = queue;
-    let _ = f;
-    todo!()
+    Stack::any(&queue.tail, f) || Stack::any(&queue.head, f)
   }
 
   pub fn all(queue: &Self, f: fn(&T) -> bool) -> bool {
-    let _ = queue;
-    let _ = f;
-    todo!()
+    Stack::all(&queue.tail, f) && Stack::all(&queue.head, f)
   }
 
   pub fn find(queue: &Self, f: fn(&T) -> bool) -> Option<&T> {

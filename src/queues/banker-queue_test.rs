@@ -658,3 +658,97 @@ mod split {
     assert_eq!(op, expected)
   }
 }
+
+#[cfg(test)]
+mod any {
+  use super::*;
+
+  #[test]
+  fn to_empty_with_only_true_return() {
+    let queue = setup::queue_empty_on_both();
+    let op = BankerQueue::any(&queue, |_| true);
+    assert_eq!(op, false)
+  }
+
+  #[test]
+  fn to_empty_with_only_false_return() {
+    let queue = setup::queue_empty_on_both();
+    let op = BankerQueue::any(&queue, |_| false);
+    assert_eq!(op, false)
+  }
+
+  #[test]
+  fn to_filled_on_tail_with_only_true_return() {
+    let queue = setup::queue_filled_on_tail();
+    let op = BankerQueue::any(&queue, |_| true);
+    assert_eq!(op, true)
+  }
+
+  #[test]
+  fn to_filled_on_tail_with_only_false_return() {
+    let queue = setup::queue_filled_on_tail();
+    let op = BankerQueue::any(&queue, |_| false);
+    assert_eq!(op, false)
+  }
+
+  #[test]
+  fn to_filled_on_both_with_only_true_return() {
+    let queue = setup::queue_filled_on_both();
+    let op = BankerQueue::any(&queue, |_| true);
+    assert_eq!(op, true)
+  }
+
+  #[test]
+  fn to_filled_on_both_without_false_return() {
+    let queue = setup::queue_filled_on_both();
+    let op = BankerQueue::any(&queue, |_| false);
+    assert_eq!(op, false)
+  }
+}
+
+#[cfg(test)]
+mod all {
+  use super::*;
+
+  #[test]
+  fn to_empty_with_only_true_return() {
+    let queue = setup::queue_empty_on_both();
+    let op = BankerQueue::all(&queue, |_| true);
+    assert_eq!(op, true)
+  }
+
+  #[test]
+  fn to_empty_with_only_false_return() {
+    let queue = setup::queue_empty_on_both();
+    let op = BankerQueue::all(&queue, |_| false);
+    assert_eq!(op, true)
+  }
+
+  #[test]
+  fn to_filled_on_tail_with_only_true_return() {
+    let queue = setup::queue_filled_on_tail();
+    let op = BankerQueue::all(&queue, |_| true);
+    assert_eq!(op, true)
+  }
+
+  #[test]
+  fn to_filled_on_tail_with_only_false_return() {
+    let queue = setup::queue_filled_on_tail();
+    let op = BankerQueue::all(&queue, |_| false);
+    assert_eq!(op, false)
+  }
+
+  #[test]
+  fn to_filled_on_both_with_only_true_return() {
+    let queue = setup::queue_filled_on_both();
+    let op = BankerQueue::all(&queue, |_| true);
+    assert_eq!(op, true)
+  }
+
+  #[test]
+  fn to_filled_on_both_with_only_false_return() {
+    let queue = setup::queue_filled_on_both();
+    let op = BankerQueue::all(&queue, |_| false);
+    assert_eq!(op, false)
+  }
+}
