@@ -5,7 +5,7 @@ pub enum Stack<T> {
 }
 
 mod private {
-  pub use super::Stack;
+  use super::Stack;
 
   pub fn from_list<T>(v: Vec<T>, acc: Stack<T>) -> Stack<T>
   where

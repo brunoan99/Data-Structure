@@ -477,3 +477,184 @@ mod len {
     assert_eq!(op, 8)
   }
 }
+
+#[cfg(test)]
+mod rev {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = BankerQueue::rev(&queue);
+    let expected = queue;
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_on_tail() {
+    let queue = setup::queue_filled_on_tail();
+    let op = BankerQueue::rev(&queue);
+    let expected = BankerQueue {
+      head: Stack::Empty,
+      len_head: 0,
+      tail: setup::node(
+        3,
+        setup::node(2, setup::node(1, setup::node(0, Stack::Empty))),
+      ),
+      len_tail: 4,
+    };
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let queue = setup::queue_filled_on_both();
+    let op = BankerQueue::rev(&queue);
+    let expected = BankerQueue {
+      head: setup::node(
+        0,
+        setup::node(1, setup::node(2, setup::node(3, Stack::Empty))),
+      ),
+      len_head: 4,
+      tail: setup::node(
+        7,
+        setup::node(6, setup::node(5, setup::node(4, Stack::Empty))),
+      ),
+      len_tail: 4,
+    };
+    assert_eq!(op, expected)
+  }
+}
+
+#[cfg(test)]
+mod concat {
+  use super::*;
+
+  #[test]
+  fn to_both_empty() {
+    let q1 = setup::queue_empty_on_both();
+    let q2 = setup::queue_empty_on_both();
+    let op = BankerQueue::concat(&q1, &q2);
+    let expected = q1;
+    assert_eq!(op, expected);
+  }
+
+  #[test]
+  fn to_first_filled_on_tail_second_empty() {
+    let q1 = setup::queue_filled_on_tail();
+    let q2 = setup::queue_empty_on_both();
+    let op = BankerQueue::concat(&q1, &q2);
+    let expected = q1;
+    assert_eq!(op, expected);
+  }
+
+  #[test]
+  fn to_first_empty_second_filled_on_tail() {
+    let q1 = setup::queue_empty_on_both();
+    let q2 = setup::queue_filled_on_tail();
+    let op = BankerQueue::concat(&q1, &q2);
+    let expected = q2;
+    assert_eq!(op, expected);
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let q1 = BankerQueue {
+      head: setup::node(3, setup::node(2, Stack::Empty)),
+      len_head: 2,
+      tail: setup::node(0, setup::node(1, Stack::Empty)),
+      len_tail: 2,
+    };
+    let q2 = BankerQueue {
+      head: setup::node(7, setup::node(6, Stack::Empty)),
+      len_head: 2,
+      tail: setup::node(4, setup::node(5, Stack::Empty)),
+      len_tail: 2,
+    };
+    let op = BankerQueue::concat(&q1, &q2);
+    let expected = BankerQueue {
+      head: setup::node(
+        7,
+        setup::node(6, setup::node(5, setup::node(4, Stack::Empty))),
+      ),
+      len_head: 4,
+      tail: setup::node(
+        0,
+        setup::node(1, setup::node(2, setup::node(3, Stack::Empty))),
+      ),
+      len_tail: 4,
+    };
+    assert_eq!(op, expected);
+  }
+}
+
+#[cfg(test)]
+mod split {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = BankerQueue::split(&queue, |item| item > &1);
+    let expected = (queue.clone(), queue.clone());
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_on_tail() {
+    let queue = setup::queue_filled_on_tail();
+    let op = BankerQueue::split(&queue, |item| item > &1);
+    let expected = (
+      BankerQueue {
+        head: Stack::Empty,
+        len_head: 0,
+        tail: setup::node(0, setup::node(1, Stack::Empty)),
+        len_tail: 2,
+      },
+      BankerQueue {
+        head: Stack::Empty,
+        len_head: 0,
+        tail: setup::node(2, setup::node(3, Stack::Empty)),
+        len_tail: 2,
+      },
+    );
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_only_falsy() {
+    let queue = setup::queue_filled_on_tail();
+    let op = BankerQueue::split(&queue, |_| false);
+    let expected = (queue.clone(), setup::queue_empty_on_both());
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_only_truthy() {
+    let queue = setup::queue_filled_on_tail();
+    let op = BankerQueue::split(&queue, |_| true);
+    let expected = (setup::queue_empty_on_both(), queue.clone());
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let queue = setup::queue_filled_on_both();
+    let op = BankerQueue::split(&queue, |item| item % 2 == 0);
+    let expected = (
+      BankerQueue {
+        head: setup::node(7, setup::node(5, Stack::Empty)),
+        len_head: 2,
+        tail: setup::node(1, setup::node(3, Stack::Empty)),
+        len_tail: 2,
+      },
+      BankerQueue {
+        head: setup::node(6, setup::node(4, Stack::Empty)),
+        len_head: 2,
+        tail: setup::node(0, setup::node(2, Stack::Empty)),
+        len_tail: 2,
+      },
+    );
+    assert_eq!(op, expected)
+  }
+}

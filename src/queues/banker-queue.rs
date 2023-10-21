@@ -12,6 +12,47 @@ pub struct BankerQueue<T> {
   len_tail: i32,
 }
 
+mod private {
+  use super::Stack;
+
+  pub fn split_stack_aux<T>(
+    stack: &Stack<T>,
+    f: fn(&T) -> bool,
+    acc1: Stack<T>,
+    count1: i32,
+    acc2: Stack<T>,
+    count2: i32,
+  ) -> (Stack<T>, i32, Stack<T>, i32)
+  where
+    T: PartialEq + Clone + Copy,
+  {
+    match stack {
+      Stack::Empty => (Stack::rev(&acc1), count1, Stack::rev(&acc2), count2),
+      Stack::Node(value, stack_remaining) => {
+        if f(value) {
+          split_stack_aux(
+            stack_remaining,
+            f,
+            acc1,
+            count1,
+            Stack::push(&acc2, value.clone()),
+            count2 + 1,
+          )
+        } else {
+          split_stack_aux(
+            stack_remaining,
+            f,
+            Stack::push(&acc1, value.clone()),
+            count1 + 1,
+            acc2,
+            count2,
+          )
+        }
+      }
+    }
+  }
+}
+
 impl<T> BankerQueue<T>
 where
   T: PartialEq + Clone + Copy,
@@ -103,20 +144,35 @@ where
   }
 
   pub fn rev(queue: &Self) -> Self {
-    let _ = queue;
-    todo!()
+    match queue.tail {
+      Stack::Empty => Self::new(),
+      Stack::Node(..) => Self::queue(
+        &queue.tail.clone(),
+        queue.len_tail,
+        &queue.head.clone(),
+        queue.len_head,
+      ),
+    }
   }
 
   pub fn concat(q1: &Self, q2: &Self) -> Self {
-    let _ = q1;
-    let _ = q2;
-    todo!()
+    Self::queue(
+      &Stack::concat(&q2.head, &Stack::rev(&q2.tail)),
+      Self::len(&q2),
+      &Stack::concat(&q1.tail, &Stack::rev(&q1.head)),
+      Self::len(&q1),
+    )
   }
 
   pub fn split(queue: &Self, f: fn(&T) -> bool) -> (Self, Self) {
-    let _ = queue;
-    let _ = f;
-    todo!()
+    let (h1, lh1, h2, lh2) =
+      private::split_stack_aux(&queue.head, f, Stack::Empty, 0, Stack::Empty, 0);
+    let (t1, lt1, t2, lt2) =
+      private::split_stack_aux(&queue.tail, f, Stack::Empty, 0, Stack::Empty, 0);
+    (
+      Self::queue(&h1, lh1, &t1, lt1),
+      Self::queue(&h2, lh2, &t2, lt2),
+    )
   }
 
   pub fn any(queue: &Self, f: fn(&T) -> bool) -> bool {
