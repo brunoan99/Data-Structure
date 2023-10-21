@@ -85,8 +85,8 @@ where
 
   pub fn concat(q1: &Self, q2: &Self) -> Self {
     Queue::queue(
-      &Stack::concat(&Stack::rev(&q2.tail), &q2.head),
-      &Stack::concat(&Stack::rev(&q1.head), &q1.tail),
+      &Stack::concat(&q2.head, &Stack::rev(&q2.tail)),
+      &Stack::concat(&q1.tail, &Stack::rev(&q1.head)),
     )
   }
 
