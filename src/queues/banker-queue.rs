@@ -51,6 +51,32 @@ mod private {
       }
     }
   }
+
+  pub fn filter_stack_aux<T>(
+    stack: &Stack<T>,
+    f: fn(&T) -> bool,
+    acc: Stack<T>,
+    count: i32,
+  ) -> (Stack<T>, i32)
+  where
+    T: PartialEq + Clone + Copy,
+  {
+    match stack {
+      Stack::Empty => (Stack::rev(&acc), count),
+      Stack::Node(value, stack_remaining) => {
+        if f(value) {
+          filter_stack_aux(
+            stack_remaining,
+            f,
+            Stack::push(&acc, value.clone()),
+            count + 1,
+          )
+        } else {
+          filter_stack_aux(stack_remaining, f, acc, count)
+        }
+      }
+    }
+  }
 }
 
 impl<T> BankerQueue<T>
@@ -184,37 +210,39 @@ where
   }
 
   pub fn find(queue: &Self, f: fn(&T) -> bool) -> Option<&T> {
-    let _ = queue;
-    let _ = f;
-    todo!()
+    match Stack::find(&queue.tail, f) {
+      Some(value) => Some(value),
+      None => Stack::find_r(&queue.head, f),
+    }
   }
 
   pub fn find_r(queue: &Self, f: fn(&T) -> bool) -> Option<&T> {
-    let _ = queue;
-    let _ = f;
-    todo!()
+    match Stack::find(&queue.head, f) {
+      Some(value) => Some(value),
+      None => Stack::find_r(&queue.tail, f),
+    }
   }
 
   pub fn map<U>(queue: &Self, f: fn(&T) -> U) -> BankerQueue<U>
   where
     U: Clone + PartialEq + Copy,
   {
-    let _ = queue;
-    let _ = f;
-    todo!()
+    BankerQueue::<U>::queue(
+      &Stack::map(&queue.head, f),
+      queue.len_head.clone(),
+      &Stack::map(&queue.tail, f),
+      queue.len_tail.clone(),
+    )
   }
 
   pub fn filter(queue: &Self, f: fn(&T) -> bool) -> Self {
-    let _ = queue;
-    let _ = f;
-    todo!()
+    let (h, lh) = private::filter_stack_aux(&queue.head, f, Stack::Empty, 0);
+    let (t, lt) = private::filter_stack_aux(&queue.tail, f, Stack::Empty, 0);
+    Self::queue(&h, lh, &t, lt)
   }
 
   pub fn reduce<U>(queue: &Self, f: fn(&T, U) -> U, acc: U) -> U {
-    let _ = queue;
-    let _ = f;
-    let _ = acc;
-    todo!()
+    Stack::reduce(&queue.head, f, Stack::reduce(&queue.tail, f, acc))
   }
 }
 

@@ -752,3 +752,206 @@ mod all {
     assert_eq!(op, false)
   }
 }
+
+#[cfg(test)]
+mod find {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = BankerQueue::find(&queue, |_| true);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_on_tail_without_match() {
+    let queue = setup::queue_filled_on_tail();
+    let op = BankerQueue::find(&queue, |_| false);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_on_tail_with_match() {
+    let queue = setup::queue_filled_on_tail();
+    let op = BankerQueue::find(&queue, |item| item % 2 == 0);
+    assert_eq!(op, Some(&0))
+  }
+
+  #[test]
+  fn to_filled_on_both_without_match() {
+    let queue = setup::queue_filled_on_both();
+    let op = BankerQueue::find(&queue, |_| false);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_on_both_with_match() {
+    let queue = setup::queue_filled_on_both();
+    let op = BankerQueue::find(&queue, |item| item % 2 == 1);
+    assert_eq!(op, Some(&1))
+  }
+}
+
+#[cfg(test)]
+mod find_r {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = BankerQueue::find_r(&queue, |_| true);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_on_tail_without_match() {
+    let queue = setup::queue_filled_on_tail();
+    let op = BankerQueue::find_r(&queue, |_| false);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_on_tail_with_match() {
+    let queue = setup::queue_filled_on_tail();
+    let op = BankerQueue::find_r(&queue, |item| item % 2 == 0);
+    assert_eq!(op, Some(&2))
+  }
+
+  #[test]
+  fn to_filled_on_both_without_match() {
+    let queue = setup::queue_filled_on_both();
+    let op = BankerQueue::find_r(&queue, |_| false);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_on_both_with_match() {
+    let queue = setup::queue_filled_on_both();
+    let op = BankerQueue::find_r(&queue, |item| item % 2 == 1);
+    assert_eq!(op, Some(&7))
+  }
+}
+
+#[cfg(test)]
+mod map {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = BankerQueue::map(&queue, |item| item * 2);
+    let expected = BankerQueue {
+      head: Stack::Empty,
+      len_head: 0,
+      tail: Stack::Empty,
+      len_tail: 0,
+    };
+    assert_eq!(op, expected);
+  }
+
+  #[test]
+  fn to_filled_on_tail() {
+    let queue = setup::queue_filled_on_tail();
+    let op = BankerQueue::map(&queue, |item| item * 2);
+    let expected = BankerQueue {
+      head: Stack::Empty,
+      len_head: 0,
+      tail: setup::node(
+        0,
+        setup::node(2, setup::node(4, setup::node(6, Stack::Empty))),
+      ),
+      len_tail: 4,
+    };
+    assert_eq!(op, expected);
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let queue = setup::queue_filled_on_both();
+    let op = BankerQueue::map(&queue, |item| item * 2);
+    let expected = BankerQueue {
+      head: setup::node(
+        14,
+        setup::node(12, setup::node(10, setup::node(8, Stack::Empty))),
+      ),
+      len_head: 4,
+      tail: setup::node(
+        0,
+        setup::node(2, setup::node(4, setup::node(6, Stack::Empty))),
+      ),
+      len_tail: 4,
+    };
+    assert_eq!(op, expected);
+  }
+}
+
+#[cfg(test)]
+mod filter {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = BankerQueue::filter(&queue, |item| item % 2 == 0);
+    let expected = BankerQueue {
+      head: Stack::Empty,
+      len_head: 0,
+      tail: Stack::Empty,
+      len_tail: 0,
+    };
+    assert_eq!(op, expected);
+  }
+
+  #[test]
+  fn to_filled_on_tail() {
+    let queue = setup::queue_filled_on_tail();
+    let op = BankerQueue::filter(&queue, |item| item % 2 == 0);
+    let expected = BankerQueue {
+      head: Stack::Empty,
+      len_head: 0,
+      tail: setup::node(0, setup::node(2, Stack::Empty)),
+      len_tail: 2,
+    };
+    assert_eq!(op, expected);
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let queue = setup::queue_filled_on_both();
+    let op = BankerQueue::filter(&queue, |item| item % 2 == 1);
+    let expected = BankerQueue {
+      head: setup::node(7, setup::node(5, Stack::Empty)),
+      len_head: 2,
+      tail: setup::node(1, setup::node(3, Stack::Empty)),
+      len_tail: 2,
+    };
+    assert_eq!(op, expected);
+  }
+}
+
+#[cfg(test)]
+mod reduce {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = BankerQueue::reduce(&queue, |item, acc| acc + item, 0);
+    assert_eq!(op, 0);
+  }
+
+  #[test]
+  fn to_filled_on_tail() {
+    let queue = setup::queue_filled_on_tail();
+    let op = BankerQueue::reduce(&queue, |item, acc| acc + item, 0);
+    assert_eq!(op, 6);
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let queue = setup::queue_filled_on_both();
+    let op = BankerQueue::reduce(&queue, |item, acc| acc + item, 10);
+    assert_eq!(op, 38);
+  }
+}
