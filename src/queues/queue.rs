@@ -37,14 +37,14 @@ where
   }
 
   pub fn enqueue(queue: &Self, item: T) -> Self {
-    Queue::queue(&Stack::push(&queue.head, item), &queue.tail)
+    Self::queue(&Stack::push(&queue.head, item), &queue.tail)
   }
 
   pub fn dequeue(queue: &Self) -> Option<(T, Self)> {
     match &queue.tail {
       Stack::Empty => None,
       Stack::Node(value, stack_remaining) => {
-        Some((value.clone(), Queue::queue(&queue.head, &*stack_remaining)))
+        Some((value.clone(), Self::queue(&queue.head, &*stack_remaining)))
       }
     }
   }
@@ -52,8 +52,8 @@ where
   pub fn drop(queue: &Self) -> Option<Self> {
     match (&queue.head, &queue.tail) {
       (Stack::Empty, Stack::Empty) => None,
-      (head, Stack::Empty) => Self::drop(&Queue::queue(&head, &Stack::Empty)),
-      (head, tail) => Some(Queue::queue(&head.clone(), &Stack::pop(&tail).unwrap().1)),
+      (head, Stack::Empty) => Self::drop(&Self::queue(&head, &Stack::Empty)),
+      (head, tail) => Some(Self::queue(&head.clone(), &Stack::pop(&tail).unwrap().1)),
     }
   }
 
@@ -77,14 +77,11 @@ where
   }
 
   pub fn rev(queue: &Self) -> Self {
-    match queue.tail {
-      Stack::Empty => Queue::new(),
-      Stack::Node(..) => Queue::queue(&queue.tail.clone(), &queue.head.clone()),
-    }
+    Self::queue(&queue.tail.clone(), &queue.head.clone())
   }
 
   pub fn concat(q1: &Self, q2: &Self) -> Self {
-    Queue::queue(
+    Self::queue(
       &Stack::concat(&q2.head, &Stack::rev(&q2.tail)),
       &Stack::concat(&q1.tail, &Stack::rev(&q1.head)),
     )
@@ -93,7 +90,7 @@ where
   pub fn split(queue: &Self, f: fn(&T) -> bool) -> (Self, Self) {
     let (h1, h2) = Stack::split(&queue.head, f);
     let (t1, t2) = Stack::split(&queue.tail, f);
-    (Queue::queue(&h1, &t1), Queue::queue(&h2, &t2))
+    (Self::queue(&h1, &t1), Self::queue(&h2, &t2))
   }
 
   pub fn any(queue: &Self, f: fn(&T) -> bool) -> bool {
@@ -126,7 +123,7 @@ where
   }
 
   pub fn filter(queue: &Self, f: fn(&T) -> bool) -> Self {
-    Queue::queue(
+    Self::queue(
       &Stack::filter(&queue.head, f),
       &Stack::filter(&queue.tail, f),
     )
