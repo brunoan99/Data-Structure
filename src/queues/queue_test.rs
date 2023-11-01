@@ -226,6 +226,43 @@ mod dequeue {
 }
 
 #[cfg(test)]
+mod drop {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = Queue::drop(&queue);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_on_tail() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Queue::drop(&queue);
+    let expected = Some(Queue {
+      head: Stack::Empty,
+      tail: setup::node(1, setup::node(2, setup::node(3, Stack::Empty))),
+    });
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let queue = setup::queue_filled_on_both();
+    let op = Queue::drop(&queue);
+    let expected = Some(Queue {
+      head: setup::node(
+        7,
+        setup::node(6, setup::node(5, setup::node(4, Stack::Empty))),
+      ),
+      tail: setup::node(1, setup::node(2, setup::node(3, Stack::Empty))),
+    });
+    assert_eq!(op, expected)
+  }
+}
+
+#[cfg(test)]
 mod head {
   use super::*;
 

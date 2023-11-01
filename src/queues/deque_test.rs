@@ -305,3 +305,763 @@ mod dequeue_r {
     assert_eq!(op, expected)
   }
 }
+
+#[cfg(test)]
+mod drop {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = Deque::drop(&queue);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_on_tail() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Deque::drop(&queue);
+    let expected = Some(Deque {
+      head: Stack::Empty,
+      tail: setup::node(1, setup::node(2, setup::node(3, Stack::Empty))),
+    });
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let queue = setup::queue_filled_on_both();
+    let op = Deque::drop(&queue);
+    let expected = Some(Deque {
+      head: setup::node(
+        7,
+        setup::node(6, setup::node(5, setup::node(4, Stack::Empty))),
+      ),
+      tail: setup::node(1, setup::node(2, setup::node(3, Stack::Empty))),
+    });
+    assert_eq!(op, expected)
+  }
+}
+
+#[cfg(test)]
+mod drop_r {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = Deque::drop_r(&queue);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_on_tail() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Deque::drop_r(&queue);
+    let expected = Some(Deque {
+      head: Stack::Empty,
+      tail: setup::node(0, setup::node(1, setup::node(2, Stack::Empty))),
+    });
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let queue = setup::queue_filled_on_both();
+    let op = Deque::drop_r(&queue);
+    let expected = Some(Deque {
+      head: setup::node(6, setup::node(5, setup::node(4, Stack::Empty))),
+      tail: setup::node(
+        0,
+        setup::node(1, setup::node(2, setup::node(3, Stack::Empty))),
+      ),
+    });
+    assert_eq!(op, expected)
+  }
+}
+
+#[cfg(test)]
+mod head {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = Deque::head(&queue);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_on_tail() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Deque::head(&queue);
+    let expected = Some(0);
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let queue = setup::queue_filled_on_both();
+    let op = Deque::head(&queue);
+    let expected = Some(0);
+    assert_eq!(op, expected)
+  }
+}
+
+#[cfg(test)]
+mod daeh {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = Deque::daeh(&queue);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_on_tail() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Deque::daeh(&queue);
+    let expected = Some(3);
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let queue = setup::queue_filled_on_both();
+    let op = Deque::daeh(&queue);
+    let expected = Some(7);
+    assert_eq!(op, expected)
+  }
+}
+
+#[cfg(test)]
+mod len {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = Deque::len(&queue);
+    assert_eq!(op, 0)
+  }
+
+  #[test]
+  fn to_filled_on_tail() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Deque::len(&queue);
+    assert_eq!(op, 4)
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let queue = setup::queue_filled_on_both();
+    let op = Deque::len(&queue);
+    assert_eq!(op, 8)
+  }
+}
+
+#[cfg(test)]
+mod rev {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = Deque::rev(&queue);
+    assert_eq!(
+      op,
+      Deque {
+        head: Stack::Empty,
+        tail: Stack::Empty,
+      }
+    )
+  }
+
+  #[test]
+  fn to_filled_on_tail() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Deque::rev(&queue);
+    let expected = Deque {
+      head: Stack::Empty,
+      tail: setup::node(
+        3,
+        setup::node(2, setup::node(1, setup::node(0, Stack::Empty))),
+      ),
+    };
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let queue = setup::queue_filled_on_both();
+    let op = Deque::rev(&queue);
+    let expected = Deque {
+      head: setup::node(
+        0,
+        setup::node(1, setup::node(2, setup::node(3, Stack::Empty))),
+      ),
+      tail: setup::node(
+        7,
+        setup::node(6, setup::node(5, setup::node(4, Stack::Empty))),
+      ),
+    };
+    assert_eq!(op, expected)
+  }
+}
+
+#[cfg(test)]
+mod concat {
+  use super::*;
+
+  #[test]
+  fn both_empty_both() {
+    let q1 = setup::queue_empty_on_both();
+    let q2 = setup::queue_empty_on_both();
+    let op = Deque::concat(&q1, &q2);
+    let expected = setup::queue_empty_on_both();
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn first_filled_second_empty() {
+    let q1 = setup::queue_filled_on_tail();
+    let q2 = setup::queue_empty_on_both();
+    let op = Deque::concat(&q1, &q2);
+    let expected = Deque {
+      head: Stack::Empty,
+      tail: setup::node(
+        0,
+        setup::node(1, setup::node(2, setup::node(3, Stack::Empty))),
+      ),
+    };
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn first_empty_second_filled() {
+    let q1 = setup::queue_empty_on_both();
+    let q2 = setup::queue_filled_on_tail();
+    let op = Deque::concat(&q1, &q2);
+    let expected = Deque {
+      head: Stack::Empty,
+      tail: setup::node(
+        0,
+        setup::node(1, setup::node(2, setup::node(3, Stack::Empty))),
+      ),
+    };
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn both_filled() {
+    let q1 = Deque {
+      head: setup::node(4, setup::node(3, Stack::Empty)),
+      tail: setup::node(1, setup::node(2, Stack::Empty)),
+    };
+    let q2 = Deque {
+      head: setup::node(8, setup::node(7, Stack::Empty)),
+      tail: setup::node(5, setup::node(6, Stack::Empty)),
+    };
+    let op = Deque::concat(&q1, &q2);
+    let expect = Deque {
+      head: setup::node(
+        8,
+        setup::node(7, setup::node(6, setup::node(5, Stack::Empty))),
+      ),
+      tail: setup::node(
+        1,
+        setup::node(2, setup::node(3, setup::node(4, Stack::Empty))),
+      ),
+    };
+    assert_eq!(op, expect)
+  }
+}
+
+#[cfg(test)]
+mod split {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = Deque::split(&queue, |item| item >= &1);
+    assert_eq!(
+      op,
+      (
+        Deque {
+          head: Stack::Empty,
+          tail: Stack::Empty,
+        },
+        Deque {
+          head: Stack::Empty,
+          tail: Stack::Empty,
+        }
+      )
+    )
+  }
+
+  #[test]
+  fn to_filled_on_tail() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Deque::split(&queue, |item| item > &1);
+    let expected = (
+      Deque {
+        head: Stack::Empty,
+        tail: setup::node(0, setup::node(1, Stack::Empty)),
+      },
+      Deque {
+        head: Stack::Empty,
+        tail: setup::node(2, setup::node(3, Stack::Empty)),
+      },
+    );
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let queue = setup::queue_filled_on_both();
+    let op = Deque::split(&queue, |item| item % 2 == 1);
+    let expected = (
+      Deque {
+        head: setup::node(6, setup::node(4, Stack::Empty)),
+        tail: setup::node(0, setup::node(2, Stack::Empty)),
+      },
+      Deque {
+        head: setup::node(7, setup::node(5, Stack::Empty)),
+        tail: setup::node(1, setup::node(3, Stack::Empty)),
+      },
+    );
+    assert_eq!(op, expected)
+  }
+}
+
+#[cfg(test)]
+mod any {
+  use super::*;
+
+  #[test]
+  fn to_empty_with_only_true_return() {
+    let queue = setup::queue_empty_on_both();
+    let op = Deque::any(&queue, |_| true);
+    assert_eq!(op, false)
+  }
+
+  #[test]
+  fn to_empty_with_only_false_return() {
+    let queue = setup::queue_empty_on_both();
+    let op = Deque::any(&queue, |_| false);
+    assert_eq!(op, false)
+  }
+
+  #[test]
+  fn to_filled_on_tail_with_only_true_return() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Deque::any(&queue, |_| true);
+    assert_eq!(op, true)
+  }
+
+  #[test]
+  fn to_filled_on_tail_with_only_false_return() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Deque::any(&queue, |_| false);
+    assert_eq!(op, false)
+  }
+
+  #[test]
+  fn to_filled_on_both_with_only_true_return() {
+    let queue = setup::queue_filled_on_both();
+    let op = Deque::any(&queue, |_| true);
+    assert_eq!(op, true)
+  }
+
+  #[test]
+  fn to_filled_on_both_without_false_return() {
+    let queue = setup::queue_filled_on_both();
+    let op = Deque::any(&queue, |_| false);
+    assert_eq!(op, false)
+  }
+}
+
+#[cfg(test)]
+mod all {
+  use super::*;
+
+  #[test]
+  fn to_empty_with_only_true_return() {
+    let queue = setup::queue_empty_on_both();
+    let op = Deque::all(&queue, |_| true);
+    assert_eq!(op, true)
+  }
+
+  #[test]
+  fn to_empty_with_only_false_return() {
+    let queue = setup::queue_empty_on_both();
+    let op = Deque::all(&queue, |_| false);
+    assert_eq!(op, true)
+  }
+
+  #[test]
+  fn to_filled_on_tail_with_only_true_return() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Deque::all(&queue, |_| true);
+    assert_eq!(op, true)
+  }
+
+  #[test]
+  fn to_filled_on_tail_with_only_false_return() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Deque::all(&queue, |_| false);
+    assert_eq!(op, false)
+  }
+
+  #[test]
+  fn to_filled_on_both_with_only_true_return() {
+    let queue = setup::queue_filled_on_both();
+    let op = Deque::all(&queue, |_| true);
+    assert_eq!(op, true)
+  }
+
+  #[test]
+  fn to_filled_on_both_with_only_false_return() {
+    let queue = setup::queue_filled_on_both();
+    let op = Deque::all(&queue, |_| false);
+    assert_eq!(op, false)
+  }
+}
+
+#[cfg(test)]
+mod find {
+  use super::*;
+
+  #[test]
+  fn to_empty_with_only_false_return() {
+    let queue = setup::queue_empty_on_both();
+    let op = Deque::find(&queue, |_| false);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_empty_with_only_true_return() {
+    let queue = setup::queue_empty_on_both();
+    let op = Deque::find(&queue, |_| true);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_on_head_without_match() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Deque::find(&queue, |_| false);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_on_head_check_if_gets_first() {
+    let queue = Deque {
+      head: setup::node(
+        (0, 4),
+        setup::node(
+          (0, 3),
+          setup::node((0, 2), setup::node((0, 1), Stack::Empty)),
+        ),
+      ),
+      tail: Stack::Empty,
+    };
+    let op = Deque::find(&queue, |item| matches!(item, (0, _)));
+    // the first on head filled case is the last pushed on head-stack, then it is (0, 1)
+    assert_eq!(op, Some(&(0, 1)))
+  }
+
+  #[test]
+  fn to_filled_on_tail_without_match() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Deque::find(&queue, |_| false);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_on_tail_with_match() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Deque::find(&queue, |item| item == &1);
+    assert_eq!(op, Some(&1))
+  }
+
+  #[test]
+  fn to_filled_on_tail_check_if_gets_first() {
+    let queue = Deque {
+      head: Stack::Empty,
+      tail: setup::node(
+        (0, 1),
+        setup::node(
+          (0, 2),
+          setup::node((0, 3), setup::node((0, 4), Stack::Empty)),
+        ),
+      ),
+    };
+    let op = Deque::find(&queue, |item| matches!(item, (0, _)));
+    // the first on tail filled case is the first on tail stack, then it is (0, 1)
+    assert_eq!(op, Some(&(0, 1)))
+  }
+
+  #[test]
+  fn to_filled_on_both_without_match() {
+    let queue = setup::queue_filled_on_both();
+    let op = Deque::find(&queue, |_| false);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_on_both_with_match() {
+    let queue = setup::queue_filled_on_both();
+    let op = Deque::find(&queue, |item| item == &1);
+    assert_eq!(op, Some(&1))
+  }
+
+  #[test]
+  fn to_filled_on_both_check_if_gets_first() {
+    let queue = Deque {
+      head: setup::node(
+        (0, 8),
+        setup::node(
+          (0, 7),
+          setup::node((0, 6), setup::node((0, 5), Stack::Empty)),
+        ),
+      ),
+      tail: setup::node(
+        (0, 1),
+        setup::node(
+          (0, 2),
+          setup::node((0, 3), setup::node((0, 4), Stack::Empty)),
+        ),
+      ),
+    };
+    let op = Deque::find(&queue, |item| matches!(item, (0, _)));
+    // the first on both filled is just the same as the first on tail.
+    // the first on tail filled is the first on tail stack, then it is (0, 1)
+    assert_eq!(op, Some(&(0, 1)))
+  }
+}
+
+#[cfg(test)]
+mod find_r {
+  use super::*;
+
+  #[test]
+  fn to_empty_with_only_false_return() {
+    let queue = setup::queue_empty_on_both();
+    let op = Deque::find_r(&queue, |_| false);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_empty_with_only_true_return() {
+    let queue = setup::queue_empty_on_both();
+    let op = Deque::find_r(&queue, |_| true);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_on_head_without_match() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Deque::find_r(&queue, |_| false);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_on_head_check_if_gets_last() {
+    let queue = Deque {
+      head: setup::node(
+        (0, 4),
+        setup::node(
+          (0, 3),
+          setup::node((0, 2), setup::node((0, 1), Stack::Empty)),
+        ),
+      ),
+      tail: Stack::Empty,
+    };
+    let op = Deque::find_r(&queue, |item| matches!(item, (0, _)));
+    // the last on head filled case is the head on head-stack, then it is (0, 4)
+    assert_eq!(op, Some(&(0, 4)))
+  }
+
+  #[test]
+  fn to_filled_on_tail_without_match() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Deque::find_r(&queue, |_| false);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_on_tail_with_match() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Deque::find_r(&queue, |item| item % 2 == 0);
+    assert_eq!(op, Some(&2))
+  }
+
+  #[test]
+  fn to_filled_on_tail_check_if_gets_last() {
+    let queue = Deque {
+      head: Stack::Empty,
+      tail: setup::node(
+        (0, 1),
+        setup::node(
+          (0, 2),
+          setup::node((0, 3), setup::node((0, 4), Stack::Empty)),
+        ),
+      ),
+    };
+    let op = Deque::find_r(&queue, |item| matches!(item, (0, _)));
+    // the last on tail filled is the last on tail stack, then it is (0, 4)
+    assert_eq!(op, Some(&(0, 4)))
+  }
+
+  #[test]
+  fn to_filled_on_both_without_match() {
+    let queue = setup::queue_filled_on_both();
+    let op = Deque::find_r(&queue, |_| false);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_on_both_with_match() {
+    let queue = setup::queue_filled_on_both();
+    let op = Deque::find_r(&queue, |item| item % 2 == 0);
+    assert_eq!(op, Some(&6))
+  }
+
+  #[test]
+  fn to_filled_on_both_check_if_gets_last() {
+    let queue = Deque {
+      head: setup::node(
+        (0, 8),
+        setup::node(
+          (0, 7),
+          setup::node((0, 6), setup::node((0, 5), Stack::Empty)),
+        ),
+      ),
+      tail: setup::node(
+        (0, 1),
+        setup::node(
+          (0, 2),
+          setup::node((0, 3), setup::node((0, 4), Stack::Empty)),
+        ),
+      ),
+    };
+    let op = Deque::find_r(&queue, |item| matches!(item, (0, _)));
+    // the last on both filled is just the same as the last on tail.
+    // the last on tail filled is the last on tail stack, then it is (0, 8)
+    assert_eq!(op, Some(&(0, 8)))
+  }
+}
+
+#[cfg(test)]
+mod map {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = Deque::map(&queue, |item| item + 3);
+    let expected = Deque {
+      head: Stack::Empty,
+      tail: Stack::Empty,
+    };
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_on_tail() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Deque::map(&queue, |item| item + 3);
+    let expected = Deque {
+      head: Stack::Empty,
+      tail: setup::node(
+        3,
+        setup::node(4, setup::node(5, setup::node(6, Stack::Empty))),
+      ),
+    };
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let queue = setup::queue_filled_on_both();
+    let op = Deque::map(&queue, |item| item + 3);
+    let expected = Deque {
+      head: setup::node(
+        10,
+        setup::node(9, setup::node(8, setup::node(7, Stack::Empty))),
+      ),
+      tail: setup::node(
+        3,
+        setup::node(4, setup::node(5, setup::node(6, Stack::Empty))),
+      ),
+    };
+    assert_eq!(op, expected)
+  }
+}
+
+#[cfg(test)]
+mod filter {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = Deque::filter(&queue, |_| true);
+    let expected = Deque {
+      head: Stack::Empty,
+      tail: Stack::Empty,
+    };
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_on_tail() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Deque::filter(&queue, |item| item % 2 == 0);
+    let expected = Deque {
+      head: Stack::Empty,
+      tail: setup::node(0, setup::node(2, Stack::Empty)),
+    };
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let queue = setup::queue_filled_on_both();
+    let op = Deque::filter(&queue, |item| item % 2 == 0);
+    let expected = Deque {
+      head: setup::node(6, setup::node(4, Stack::Empty)),
+      tail: setup::node(0, setup::node(2, Stack::Empty)),
+    };
+    assert_eq!(op, expected)
+  }
+}
+
+#[cfg(test)]
+mod reduce {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = Deque::reduce(&queue, |item, acc| acc + item, 0);
+    assert_eq!(op, 0)
+  }
+
+  #[test]
+  fn to_filled_on_tail() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Deque::reduce(&queue, |item, acc| acc + item, 0);
+    assert_eq!(op, 6)
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let queue = setup::queue_filled_on_both();
+    let op = Deque::reduce(&queue, |item, acc| acc + item, 0);
+    assert_eq!(op, 28)
+  }
+}
