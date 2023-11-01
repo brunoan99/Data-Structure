@@ -8,6 +8,23 @@ pub struct Deque<T> {
   tail: Stack<T>,
 }
 
+mod private {
+  use super::Stack;
+
+  pub fn drop_r_stack_aux<T>(stack: &Stack<T>, acc: Stack<T>) -> Option<(T, Stack<T>)>
+  where
+    T: PartialEq + Clone + Copy,
+  {
+    match stack {
+      Stack::Empty => None,
+      Stack::Node(value, stack_remaining) => match *stack_remaining.clone() {
+        Stack::Empty => Some((value.clone(), Stack::rev(&acc))),
+        Stack::Node(..) => drop_r_stack_aux(&stack_remaining, Stack::push(&acc, value.clone())),
+      },
+    }
+  }
+}
+
 impl<T> Deque<T>
 where
   T: PartialEq + Clone + Copy,
@@ -37,25 +54,37 @@ where
   }
 
   pub fn enqueue(queue: &Self, item: T) -> Self {
-    let _ = queue;
-    let _ = item;
-    todo!()
+    Self::queue(&Stack::push(&queue.head, item), &queue.tail)
   }
 
   pub fn enqueue_r(queue: &Self, item: T) -> Self {
-    let _ = queue;
-    let _ = item;
-    todo!()
+    Self::queue(&queue.head, &Stack::push(&queue.tail, item))
   }
 
   pub fn dequeue(queue: &Self) -> Option<(T, Self)> {
-    let _ = queue;
-    todo!()
+    match &queue.tail {
+      Stack::Empty => None,
+      Stack::Node(value, stack_remaining) => {
+        Some((value.clone(), Self::queue(&queue.head, &*stack_remaining)))
+      }
+    }
   }
 
   pub fn dequeue_r(queue: &Self) -> Option<(T, Self)> {
-    let _ = queue;
-    todo!()
+    match &queue.head {
+      Stack::Node(value, stack_remaining) => {
+        Some((value.clone(), Self::queue(stack_remaining, &queue.tail)))
+      }
+      Stack::Empty => match &queue.tail {
+        Stack::Empty => None,
+        Stack::Node(..) => match private::drop_r_stack_aux(&queue.tail, Stack::Empty) {
+          None => None,
+          Some((value, stack_remaining)) => {
+            Some((value.clone(), Self::queue(&queue.head, &stack_remaining)))
+          }
+        },
+      },
+    }
   }
 
   pub fn drop(queue: &Self) -> Option<Self> {

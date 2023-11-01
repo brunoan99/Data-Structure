@@ -906,14 +906,7 @@ mod reduce {
   #[test]
   fn to_filled_on_both() {
     let queue = setup::queue_filled_on_both();
-    let op = Queue::reduce(
-      &queue,
-      |item, acc| {
-        println!("Acc: {acc}, Item: {item}");
-        acc + item
-      },
-      0,
-    );
+    let op = Queue::reduce(&queue, |item, acc| acc + item, 0);
     assert_eq!(op, 28)
   }
 }

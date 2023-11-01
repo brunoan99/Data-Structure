@@ -143,3 +143,165 @@ mod is_empty {
     assert_eq!(op, false)
   }
 }
+
+#[cfg(test)]
+mod enqueue {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = Deque::enqueue(&queue, 0);
+    let expected = Deque {
+      head: Stack::Empty,
+      tail: setup::node(0, Stack::Empty),
+    };
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_on_tail() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Deque::enqueue(&queue, 4);
+    let expected = Deque {
+      head: setup::node(4, Stack::Empty),
+      tail: queue.tail,
+    };
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let queue = setup::queue_filled_on_both();
+    let op = Deque::enqueue(&queue, 8);
+    let expected = Deque {
+      head: setup::node(8, queue.head),
+      tail: queue.tail,
+    };
+    assert_eq!(op, expected)
+  }
+}
+
+#[cfg(test)]
+mod enqueue_r {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = Deque::enqueue_r(&queue, 0);
+    let expected = Deque {
+      head: Stack::Empty,
+      tail: setup::node(0, Stack::Empty),
+    };
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_on_tail() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Deque::enqueue_r(&queue, -1);
+    let expected = Deque {
+      head: Stack::Empty,
+      tail: setup::node(-1, queue.tail),
+    };
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let queue = setup::queue_filled_on_both();
+    let op = Deque::enqueue_r(&queue, -1);
+    let expected = Deque {
+      head: queue.head,
+      tail: setup::node(-1, queue.tail),
+    };
+    assert_eq!(op, expected)
+  }
+}
+
+#[cfg(test)]
+mod dequeue {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = Deque::dequeue(&queue);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_on_tail() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Deque::dequeue(&queue);
+    let expected = Some((
+      0,
+      Deque {
+        head: Stack::Empty,
+        tail: setup::node(1, setup::node(2, setup::node(3, Stack::Empty))),
+      },
+    ));
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let queue = setup::queue_filled_on_both();
+    let op = Deque::dequeue(&queue);
+    let expected = Some((
+      0,
+      Deque {
+        head: setup::node(
+          7,
+          setup::node(6, setup::node(5, setup::node(4, Stack::Empty))),
+        ),
+        tail: setup::node(1, setup::node(2, setup::node(3, Stack::Empty))),
+      },
+    ));
+    assert_eq!(op, expected)
+  }
+}
+
+#[cfg(test)]
+mod dequeue_r {
+  use super::*;
+
+  #[test]
+  fn to_empty_on_both() {
+    let queue = setup::queue_empty_on_both();
+    let op = Deque::dequeue_r(&queue);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_on_tail() {
+    let queue = setup::queue_filled_on_tail();
+    let op = Deque::dequeue_r(&queue);
+    let expected = Some((
+      3,
+      Deque {
+        head: Stack::Empty,
+        tail: setup::node(0, setup::node(1, setup::node(2, Stack::Empty))),
+      },
+    ));
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_on_both() {
+    let queue = setup::queue_filled_on_both();
+    let op = Deque::dequeue_r(&queue);
+    let expected = Some((
+      7,
+      Deque {
+        head: setup::node(6, setup::node(5, setup::node(4, Stack::Empty))),
+        tail: setup::node(
+          0,
+          setup::node(1, setup::node(2, setup::node(3, Stack::Empty))),
+        ),
+      },
+    ));
+    assert_eq!(op, expected)
+  }
+}
