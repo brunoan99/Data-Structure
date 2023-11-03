@@ -5,20 +5,22 @@ mod setup {
 
   pub type LinkedListT = LinkedList<i32>;
 
-  pub fn node<T>(value: T, next: Node<T>) -> Node<T> {
-    Node::Node {
+  pub fn node<T>(value: T, next: ListNode<T>) -> ListNode<T> {
+    ListNode::Node {
       value,
       next: Box::new(next),
     }
   }
 
   pub fn linked_list_empty() -> LinkedListT {
-    LinkedListT { root: Node::Empty }
+    LinkedListT {
+      root: ListNode::Empty,
+    }
   }
 
   pub fn linked_list_filled() -> LinkedListT {
     LinkedListT {
-      root: node(0, node(1, node(2, node(3, Node::Empty)))),
+      root: node(0, node(1, node(2, node(3, ListNode::Empty)))),
     }
   }
 }
@@ -77,7 +79,7 @@ mod insert {
         0,
         setup::node(
           1,
-          setup::node(2, setup::node(3, setup::node(4, Node::Empty))),
+          setup::node(2, setup::node(3, setup::node(4, ListNode::Empty))),
         ),
       ),
     };
@@ -102,7 +104,7 @@ mod remove {
     let list = setup::linked_list_filled();
     let op = LinkedList::remove(&list, 2);
     let expected = LinkedList {
-      root: setup::node(0, setup::node(1, setup::node(3, Node::Empty))),
+      root: setup::node(0, setup::node(1, setup::node(3, ListNode::Empty))),
     };
     assert_eq!(op, expected)
   }
@@ -135,7 +137,9 @@ mod rev {
   fn to_empty() {
     let list = setup::linked_list_empty();
     let op = LinkedList::rev(&list);
-    let expected = LinkedList { root: Node::Empty };
+    let expected = LinkedList {
+      root: ListNode::Empty,
+    };
     assert_eq!(op, expected)
   }
 
@@ -146,7 +150,7 @@ mod rev {
     let expected = LinkedList {
       root: setup::node(
         3,
-        setup::node(2, setup::node(1, setup::node(0, Node::Empty))),
+        setup::node(2, setup::node(1, setup::node(0, ListNode::Empty))),
       ),
     };
     assert_eq!(op, expected)
@@ -162,7 +166,9 @@ mod concat {
     let l1 = setup::linked_list_empty();
     let l2 = setup::linked_list_empty();
     let op = LinkedList::concat(&l1, &l2);
-    let expected = LinkedList { root: Node::Empty };
+    let expected = LinkedList {
+      root: ListNode::Empty,
+    };
     assert_eq!(op, expected)
   }
 
@@ -171,7 +177,9 @@ mod concat {
     let l1 = setup::linked_list_empty();
     let l2 = setup::linked_list_empty();
     let op = LinkedList::concat(&l1, &l2);
-    let expected = LinkedList { root: Node::Empty };
+    let expected = LinkedList {
+      root: ListNode::Empty,
+    };
     assert_eq!(op, expected)
   }
 
@@ -180,7 +188,9 @@ mod concat {
     let l1 = setup::linked_list_empty();
     let l2 = setup::linked_list_empty();
     let op = LinkedList::concat(&l1, &l2);
-    let expected = LinkedList { root: Node::Empty };
+    let expected = LinkedList {
+      root: ListNode::Empty,
+    };
     assert_eq!(op, expected)
   }
 
@@ -189,7 +199,9 @@ mod concat {
     let l1 = setup::linked_list_empty();
     let l2 = setup::linked_list_empty();
     let op = LinkedList::concat(&l1, &l2);
-    let expected = LinkedList { root: Node::Empty };
+    let expected = LinkedList {
+      root: ListNode::Empty,
+    };
     assert_eq!(op, expected)
   }
 }
@@ -203,8 +215,12 @@ mod split {
     let list = setup::linked_list_empty();
     let op = LinkedList::split(&list, |_| true);
     let expected = (
-      LinkedList { root: Node::Empty },
-      LinkedList { root: Node::Empty },
+      LinkedList {
+        root: ListNode::Empty,
+      },
+      LinkedList {
+        root: ListNode::Empty,
+      },
     );
     assert_eq!(op, expected)
   }
@@ -215,10 +231,10 @@ mod split {
     let op = LinkedList::split(&list, |item| item % 2 == 0);
     let expected = (
       LinkedList {
-        root: setup::node(1, setup::node(3, Node::Empty)),
+        root: setup::node(1, setup::node(3, ListNode::Empty)),
       },
       LinkedList {
-        root: setup::node(0, setup::node(2, Node::Empty)),
+        root: setup::node(0, setup::node(2, ListNode::Empty)),
       },
     );
     assert_eq!(op, expected)
@@ -337,7 +353,9 @@ mod map {
   fn to_empty() {
     let list = setup::linked_list_empty();
     let op = LinkedList::map(&list, |item| item + 1);
-    let expected = LinkedList { root: Node::Empty };
+    let expected = LinkedList {
+      root: ListNode::Empty,
+    };
     assert_eq!(op, expected)
   }
 
@@ -348,7 +366,7 @@ mod map {
     let expected = LinkedList {
       root: setup::node(
         1,
-        setup::node(2, setup::node(3, setup::node(4, Node::Empty))),
+        setup::node(2, setup::node(3, setup::node(4, ListNode::Empty))),
       ),
     };
     assert_eq!(op, expected)
@@ -363,7 +381,9 @@ mod filter {
   fn to_empty() {
     let list = setup::linked_list_empty();
     let op = LinkedList::filter(&list, |_| false);
-    let expected = LinkedList { root: Node::Empty };
+    let expected = LinkedList {
+      root: ListNode::Empty,
+    };
     assert_eq!(op, expected)
   }
 
@@ -371,7 +391,9 @@ mod filter {
   fn to_filled_only_false_return() {
     let list = setup::linked_list_filled();
     let op = LinkedList::filter(&list, |item| item > &3);
-    let expected = LinkedList { root: Node::Empty };
+    let expected = LinkedList {
+      root: ListNode::Empty,
+    };
     assert_eq!(op, expected)
   }
 
@@ -380,7 +402,7 @@ mod filter {
     let list = setup::linked_list_filled();
     let op = LinkedList::filter(&list, |item| item > &1);
     let expected = LinkedList {
-      root: setup::node(2, setup::node(3, Node::Empty)),
+      root: setup::node(2, setup::node(3, ListNode::Empty)),
     };
     assert_eq!(op, expected)
   }
