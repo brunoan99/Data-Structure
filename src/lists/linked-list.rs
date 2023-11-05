@@ -201,12 +201,7 @@ where
   }
 
   pub fn is_empty(list: &Self) -> bool {
-    matches!(
-      list,
-      Self {
-        root: ListNode::Empty
-      }
-    )
+    matches!(list.root, ListNode::Empty)
   }
 
   pub fn insert(list: &Self, item: T) -> Self {

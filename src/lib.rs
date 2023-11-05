@@ -7,3 +7,6 @@ pub use queues::*;
 
 pub mod lists;
 pub use lists::*;
+
+pub mod trees;
+pub use trees::*;
