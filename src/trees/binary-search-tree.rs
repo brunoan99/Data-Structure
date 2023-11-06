@@ -12,7 +12,7 @@ pub enum TreeNode<T> {
 //    - the left_node value is always <= node value
 //    - the right_node value is always > node value
 #[derive(Clone, PartialEq, Debug)]
-pub struct BinaryTree<T> {
+pub struct BinarySearchTree<T> {
   root: TreeNode<T>,
 }
 
@@ -34,12 +34,12 @@ mod private {
           TreeNode::Node {
             value: value.clone(),
             left: left.to_owned(),
-            right: Box::new(insert_node_aux(&*right.clone(), item)),
+            right: Box::new(insert_node_aux(right, item)),
           }
         } else {
           TreeNode::Node {
             value: value.clone(),
-            left: Box::new(insert_node_aux(&*left.clone(), item)),
+            left: Box::new(insert_node_aux(left, item)),
             right: right.clone().to_owned(),
           }
         }
@@ -47,7 +47,7 @@ mod private {
     }
   }
 
-  pub fn in_order_sucessor<T>(node: &TreeNode<T>, acc: T) -> T
+  fn in_order_sucessor<T>(node: &TreeNode<T>, acc: T) -> T
   where
     T: Clone,
   {
@@ -59,7 +59,7 @@ mod private {
         right: _,
       } => match *left.clone() {
         TreeNode::Empty => value.clone(),
-        TreeNode::Node { .. } => in_order_sucessor(&*left.clone(), value.clone()),
+        TreeNode::Node { .. } => in_order_sucessor(left, value.clone()),
       },
     }
   }
@@ -77,12 +77,12 @@ mod private {
               TreeNode::Node {
                 value: value.clone(),
                 left: left.to_owned(),
-                right: Box::new(remove_node_aux(&*right.clone(), item)),
+                right: Box::new(remove_node_aux(right, item)),
               }
             } else {
               TreeNode::Node {
                 value: value.clone(),
-                left: Box::new(remove_node_aux(&*left.clone(), item)),
+                left: Box::new(remove_node_aux(left, item)),
                 right: right.to_owned(),
               }
             }
@@ -91,15 +91,27 @@ mod private {
           (true, TreeNode::Empty, _) => *right.clone(),
           (true, _, TreeNode::Empty) => *left.clone(),
           (true, _, _) => {
-            let rightmost = in_order_sucessor(&*right.clone(), item);
+            let rightmost = in_order_sucessor(right, item);
             TreeNode::Node {
               value: rightmost.clone(),
               left: left.to_owned(),
-              right: Box::new(remove_node_aux(&*right.clone(), rightmost.clone())),
+              right: Box::new(remove_node_aux(right, rightmost.clone())),
             }
           }
         }
       }
+    }
+  }
+
+  pub fn search_node_aux<T>(node: &TreeNode<T>, item: T) -> Option<T> {
+    let _ = item;
+    match node {
+      TreeNode::Empty => None,
+      TreeNode::Node {
+        value: _,
+        left: _,
+        right: _,
+      } => None,
     }
   }
 
@@ -124,9 +136,54 @@ mod private {
       } => std::cmp::max(height_node_aux(left), height_node_aux(right)) + 1,
     }
   }
+
+  pub fn any_node_aux<T>(node: &TreeNode<T>, f: fn(&T) -> bool) -> bool {
+    match node {
+      TreeNode::Empty => false,
+      TreeNode::Node { value, left, right } => {
+        if f(value) {
+          true
+        } else {
+          any_node_aux(left, f) || any_node_aux(right, f)
+        }
+      }
+    }
+  }
+
+  pub fn all_node_aux<T>(node: &TreeNode<T>, f: fn(&T) -> bool) -> bool {
+    match node {
+      TreeNode::Empty => true,
+      TreeNode::Node { value, left, right } => {
+        if f(value) {
+          all_node_aux(left, f) && all_node_aux(right, f)
+        } else {
+          false
+        }
+      }
+    }
+  }
+
+  pub fn find_node_aux<'a, T>(node: &'a TreeNode<T>, f: fn(&T) -> bool) -> Option<&'a T> {
+    let _ = node;
+    let _ = f;
+    todo!()
+  }
+
+  pub fn map_node_aux<T, U>(node: &TreeNode<T>, f: fn(&T) -> U) -> TreeNode<U> {
+    let _ = node;
+    let _ = f;
+    todo!()
+  }
+
+  pub fn reduce_node_aux<T, U>(node: &TreeNode<T>, f: fn(&T, U) -> U, acc: U) -> U {
+    let _ = node;
+    let _ = f;
+    let _ = acc;
+    todo!()
+  }
 }
 
-impl<T> BinaryTree<T>
+impl<T> BinarySearchTree<T>
 where
   T: PartialEq + PartialOrd + Clone + Copy,
 {
@@ -152,12 +209,38 @@ where
     }
   }
 
+  pub fn search(tree: &Self, item: T) -> Option<T> {
+    private::search_node_aux(&tree.root, item)
+  }
+
   pub fn len(tree: &Self) -> i32 {
     private::len_node_aux(&tree.root, 0)
   }
 
   pub fn height(tree: &Self) -> i32 {
     private::height_node_aux(&tree.root)
+  }
+
+  pub fn any(tree: &Self, f: fn(&T) -> bool) -> bool {
+    private::any_node_aux(&tree.root, f)
+  }
+
+  pub fn all(tree: &Self, f: fn(&T) -> bool) -> bool {
+    private::all_node_aux(&tree.root, f)
+  }
+
+  pub fn find(tree: &Self, f: fn(&T) -> bool) -> Option<&T> {
+    private::find_node_aux(&tree.root, f)
+  }
+
+  pub fn map<U>(tree: &Self, f: fn(&T) -> U) -> BinarySearchTree<U> {
+    BinarySearchTree::<U> {
+      root: private::map_node_aux(&tree.root, f),
+    }
+  }
+
+  pub fn reduce<U>(tree: &Self, f: fn(&T, U) -> U, acc: U) -> U {
+    private::reduce_node_aux(&tree.root, f, acc)
   }
 }
 

@@ -3,7 +3,7 @@ use super::*;
 mod setup {
   use super::*;
 
-  pub type BinaryTreeT = BinaryTree<i32>;
+  pub type BinaryTreeT = BinarySearchTree<i32>;
 
   pub fn node<T>(value: T, left: TreeNode<T>, right: TreeNode<T>) -> TreeNode<T> {
     TreeNode::Node {
@@ -51,7 +51,7 @@ mod new {
 
   #[test]
   fn single_case() {
-    let op = BinaryTree::<i32>::new();
+    let op = BinarySearchTree::<i32>::new();
     let expected = setup::binary_tree_empty();
     assert_eq!(op, expected)
   }
@@ -64,14 +64,14 @@ mod is_empty {
   #[test]
   fn to_empty() {
     let tree = setup::binary_tree_empty();
-    let op = BinaryTree::is_empty(&tree);
+    let op = BinarySearchTree::is_empty(&tree);
     assert_eq!(op, true)
   }
 
   #[test]
   fn to_filled() {
     let tree = setup::binary_tree_filled();
-    let op = BinaryTree::is_empty(&tree);
+    let op = BinarySearchTree::is_empty(&tree);
     assert_eq!(op, false)
   }
 }
@@ -83,8 +83,8 @@ mod insert {
   #[test]
   fn to_empty() {
     let tree = setup::binary_tree_empty();
-    let op = BinaryTree::insert(&tree, 0);
-    let expected = BinaryTree {
+    let op = BinarySearchTree::insert(&tree, 0);
+    let expected = BinarySearchTree {
       root: setup::node(0, TreeNode::Empty, TreeNode::Empty),
     };
     assert_eq!(op, expected)
@@ -93,8 +93,8 @@ mod insert {
   #[test]
   fn to_filled() {
     let tree = setup::binary_tree_filled();
-    let op = BinaryTree::insert(&tree, 7);
-    let expected = BinaryTree {
+    let op = BinarySearchTree::insert(&tree, 7);
+    let expected = BinarySearchTree {
       root: setup::node(
         3,
         setup::node(
@@ -124,8 +124,8 @@ mod remove {
   #[test]
   fn to_empty() {
     let tree = setup::binary_tree_empty();
-    let op = BinaryTree::remove(&tree, 0);
-    let expected = BinaryTree {
+    let op = BinarySearchTree::remove(&tree, 0);
+    let expected = BinarySearchTree {
       root: TreeNode::Empty,
     };
     assert_eq!(op, expected)
@@ -134,8 +134,8 @@ mod remove {
   #[test]
   fn to_filled_no_children() {
     let tree = setup::binary_tree_filled();
-    let op = BinaryTree::remove(&tree, 6);
-    let expected = BinaryTree {
+    let op = BinarySearchTree::remove(&tree, 6);
+    let expected = BinarySearchTree {
       root: setup::node(
         3,
         setup::node(
@@ -155,7 +155,7 @@ mod remove {
 
   #[test]
   fn to_filled_children_on_left() {
-    let tree = BinaryTree {
+    let tree = BinarySearchTree {
       root: setup::node(
         3,
         setup::node(
@@ -170,8 +170,8 @@ mod remove {
         ),
       ),
     };
-    let op = BinaryTree::remove(&tree, 5);
-    let expected = BinaryTree {
+    let op = BinarySearchTree::remove(&tree, 5);
+    let expected = BinarySearchTree {
       root: setup::node(
         3,
         setup::node(
@@ -187,7 +187,7 @@ mod remove {
 
   #[test]
   fn to_filled_children_on_right() {
-    let tree = BinaryTree {
+    let tree = BinarySearchTree {
       root: setup::node(
         3,
         setup::node(
@@ -202,8 +202,8 @@ mod remove {
         ),
       ),
     };
-    let op = BinaryTree::remove(&tree, 6);
-    let expected = BinaryTree {
+    let op = BinarySearchTree::remove(&tree, 6);
+    let expected = BinarySearchTree {
       root: setup::node(
         3,
         setup::node(
@@ -220,8 +220,8 @@ mod remove {
   #[test]
   fn to_filled_children_on_both() {
     let tree = setup::binary_tree_filled();
-    let op = BinaryTree::remove(&tree, 5);
-    let expected = BinaryTree {
+    let op = BinarySearchTree::remove(&tree, 5);
+    let expected = BinarySearchTree {
       root: setup::node(
         3,
         setup::node(
@@ -247,14 +247,14 @@ mod len {
   #[test]
   fn to_empty() {
     let tree = setup::binary_tree_empty();
-    let op = BinaryTree::len(&tree);
+    let op = BinarySearchTree::len(&tree);
     assert_eq!(op, 0);
   }
 
   #[test]
   fn to_filled() {
     let tree = setup::binary_tree_filled();
-    let op = BinaryTree::len(&tree);
+    let op = BinarySearchTree::len(&tree);
     assert_eq!(op, 7);
   }
 }
@@ -266,14 +266,14 @@ mod height {
   #[test]
   fn to_empty() {
     let tree = setup::binary_tree_empty();
-    let op = BinaryTree::height(&tree);
+    let op = BinarySearchTree::height(&tree);
     assert_eq!(op, 0)
   }
 
   #[test]
   fn to_filled() {
     let tree = setup::binary_tree_filled();
-    let op = BinaryTree::height(&tree);
+    let op = BinarySearchTree::height(&tree);
     assert_eq!(op, 3)
   }
 }
