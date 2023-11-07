@@ -33,14 +33,14 @@ mod private {
         if &item > value {
           TreeNode::Node {
             value: value.clone(),
-            left: left.to_owned(),
+            left: left.clone(),
             right: Box::new(insert_node_aux(right, item)),
           }
         } else {
           TreeNode::Node {
             value: value.clone(),
             left: Box::new(insert_node_aux(left, item)),
-            right: right.clone().to_owned(),
+            right: right.clone(),
           }
         }
       }
@@ -76,14 +76,14 @@ mod private {
             if &item > value {
               TreeNode::Node {
                 value: value.clone(),
-                left: left.to_owned(),
+                left: left.clone(),
                 right: Box::new(remove_node_aux(right, item)),
               }
             } else {
               TreeNode::Node {
                 value: value.clone(),
                 left: Box::new(remove_node_aux(left, item)),
-                right: right.to_owned(),
+                right: right.clone(),
               }
             }
           }
@@ -103,15 +103,22 @@ mod private {
     }
   }
 
-  pub fn search_node_aux<T>(node: &TreeNode<T>, item: T) -> Option<T> {
+  pub fn search_node_aux<T>(node: &TreeNode<T>, item: T) -> Option<T>
+  where
+    T: PartialEq + PartialOrd,
+  {
     let _ = item;
     match node {
       TreeNode::Empty => None,
-      TreeNode::Node {
-        value: _,
-        left: _,
-        right: _,
-      } => None,
+      TreeNode::Node { value, left, right } => {
+        if value == &item {
+          Some(item)
+        } else if value > &item {
+          search_node_aux(right, item)
+        } else {
+          search_node_aux(left, item)
+        }
+      }
     }
   }
 
@@ -164,22 +171,42 @@ mod private {
   }
 
   pub fn find_node_aux<'a, T>(node: &'a TreeNode<T>, f: fn(&T) -> bool) -> Option<&'a T> {
-    let _ = node;
-    let _ = f;
-    todo!()
+    match node {
+      TreeNode::Empty => None,
+      TreeNode::Node { value, left, right } => {
+        if f(value) {
+          Some(value)
+        } else {
+          match find_node_aux(left, f) {
+            Some(value) => Some(value),
+            None => match find_node_aux(right, f) {
+              Some(value) => Some(value),
+              None => None,
+            },
+          }
+        }
+      }
+    }
   }
 
   pub fn map_node_aux<T, U>(node: &TreeNode<T>, f: fn(&T) -> U) -> TreeNode<U> {
-    let _ = node;
-    let _ = f;
-    todo!()
+    match node {
+      TreeNode::Empty => TreeNode::Empty,
+      TreeNode::Node { value, left, right } => TreeNode::Node {
+        value: f(value),
+        left: Box::new(map_node_aux(left, f)),
+        right: Box::new(map_node_aux(right, f)),
+      },
+    }
   }
 
   pub fn reduce_node_aux<T, U>(node: &TreeNode<T>, f: fn(&T, U) -> U, acc: U) -> U {
-    let _ = node;
-    let _ = f;
-    let _ = acc;
-    todo!()
+    match node {
+      TreeNode::Empty => acc,
+      TreeNode::Node { value, left, right } => {
+        reduce_node_aux(right, f, f(value, reduce_node_aux(left, f, acc)))
+      }
+    }
   }
 }
 

@@ -277,3 +277,141 @@ mod height {
     assert_eq!(op, 3)
   }
 }
+
+#[cfg(test)]
+mod any {
+  use super::*;
+
+  #[test]
+  fn to_empty() {
+    let tree = setup::binary_tree_empty();
+    let op = BinarySearchTree::any(&tree, |_| true);
+    assert_eq!(op, false)
+  }
+
+  #[test]
+  fn to_filled_without_true_return() {
+    let tree = setup::binary_tree_filled();
+    let op = BinarySearchTree::any(&tree, |item| item < &0);
+    assert_eq!(op, false)
+  }
+
+  #[test]
+  fn to_filled() {
+    let tree = setup::binary_tree_filled();
+    let op = BinarySearchTree::any(&tree, |item| item == &0);
+    assert_eq!(op, true)
+  }
+}
+
+#[cfg(test)]
+mod all {
+  use super::*;
+
+  #[test]
+  fn to_empty() {
+    let tree = setup::binary_tree_empty();
+    let op = BinarySearchTree::all(&tree, |_| false);
+    assert_eq!(op, true)
+  }
+
+  #[test]
+  fn to_filled_with_false_return() {
+    let tree = setup::binary_tree_filled();
+    let op = BinarySearchTree::all(&tree, |item| item < &6);
+    assert_eq!(op, false)
+  }
+
+  #[test]
+  fn to_filled_with_only_true() {
+    let tree = setup::binary_tree_filled();
+    let op = BinarySearchTree::all(&tree, |item| item > &-1);
+    assert_eq!(op, true)
+  }
+}
+
+#[cfg(test)]
+mod find {
+  use super::*;
+
+  #[test]
+  fn to_empty() {
+    let tree = setup::binary_tree_empty();
+    let op = BinarySearchTree::find(&tree, |_| true);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_without_match() {
+    let tree = setup::binary_tree_filled();
+    let op = BinarySearchTree::find(&tree, |_| false);
+    assert_eq!(op, None)
+  }
+
+  #[test]
+  fn to_filled_with_match() {
+    let tree = setup::binary_tree_filled();
+    let op = BinarySearchTree::find(&tree, |item| item % 4 == 0);
+    assert_eq!(op, Some(&0))
+  }
+
+  #[test]
+  fn to_filled_should_match_in_order() {
+    let tree = setup::binary_tree_filled();
+    let op = BinarySearchTree::find(&tree, |item| item % 2 == 0 && item > &1);
+    assert_eq!(op, Some(&2))
+  }
+}
+
+#[cfg(test)]
+mod map {
+  use super::*;
+
+  #[test]
+  fn to_empty() {
+    let tree = setup::binary_tree_empty();
+    let op = BinarySearchTree::map(&tree, |item| item + 5);
+    assert_eq!(op, tree)
+  }
+
+  #[test]
+  fn to_filled() {
+    let tree = setup::binary_tree_filled();
+    let op = BinarySearchTree::map(&tree, |item| item + 5);
+    let expected = BinarySearchTree {
+      root: setup::node(
+        8,
+        setup::node(
+          6,
+          setup::node(5, TreeNode::Empty, TreeNode::Empty),
+          setup::node(7, TreeNode::Empty, TreeNode::Empty),
+        ),
+        setup::node(
+          10,
+          setup::node(9, TreeNode::Empty, TreeNode::Empty),
+          setup::node(11, TreeNode::Empty, TreeNode::Empty),
+        ),
+      ),
+    };
+    assert_eq!(op, expected)
+  }
+}
+
+#[cfg(test)]
+mod reduce {
+  use super::*;
+
+  #[test]
+  fn to_empty() {
+    let tree = setup::binary_tree_empty();
+    let op = BinarySearchTree::reduce(&tree, |item, acc| item + acc, 0);
+    assert_eq!(op, 0)
+  }
+
+  #[test]
+  fn to_filled() {
+    let tree = setup::binary_tree_filled();
+    let op = BinarySearchTree::reduce(&tree, |item, acc| item + acc, 0);
+    assert_eq!(op, 21)
+  }
+}
