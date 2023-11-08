@@ -12,7 +12,17 @@ pub struct LinkedList<T> {
 mod private {
   use super::*;
 
-  pub fn insert_node_aux<T>(node: &ListNode<T>, item: T) -> ListNode<T>
+  pub fn insert_at_beginning_node_aux<T>(node: &ListNode<T>, item: T) -> ListNode<T>
+  where
+    T: Clone,
+  {
+    ListNode::Node {
+      value: item,
+      next: Box::new(node.clone()),
+    }
+  }
+
+  pub fn insert_at_end_node_aux<T>(node: &ListNode<T>, item: T) -> ListNode<T>
   where
     T: Clone,
   {
@@ -23,7 +33,63 @@ mod private {
       },
       ListNode::Node { value, next } => ListNode::Node {
         value: value.clone(),
-        next: Box::new(insert_node_aux(next, item)),
+        next: Box::new(insert_at_end_node_aux(next, item)),
+      },
+    }
+  }
+
+  pub fn insert_before_node_aux<T>(node: &ListNode<T>, item: T, before: &T) -> ListNode<T>
+  where
+    T: PartialEq + Clone,
+  {
+    match node {
+      ListNode::Node { value, next } => {
+        if value == before {
+          ListNode::Node {
+            value: item,
+            next: Box::new(ListNode::Node {
+              value: value.clone(),
+              next: next.clone(),
+            }),
+          }
+        } else {
+          ListNode::Node {
+            value: value.clone(),
+            next: Box::new(insert_before_node_aux(next, item, before)),
+          }
+        }
+      }
+      ListNode::Empty => ListNode::Node {
+        value: item,
+        next: Box::new(ListNode::Empty),
+      },
+    }
+  }
+
+  pub fn insert_after_node_aux<T>(node: &ListNode<T>, item: T, after: &T) -> ListNode<T>
+  where
+    T: PartialEq + Clone,
+  {
+    match node {
+      ListNode::Node { value, next } => {
+        if value == after {
+          ListNode::Node {
+            value: value.clone(),
+            next: Box::new(ListNode::Node {
+              value: item,
+              next: next.clone(),
+            }),
+          }
+        } else {
+          ListNode::Node {
+            value: value.clone(),
+            next: Box::new(insert_after_node_aux(next, item, after)),
+          }
+        }
+      }
+      ListNode::Empty => ListNode::Node {
+        value: item,
+        next: Box::new(ListNode::Empty),
       },
     }
   }
@@ -60,7 +126,9 @@ mod private {
   {
     match node {
       ListNode::Empty => acc,
-      ListNode::Node { value, next } => insert_node_aux(&rev_node_aux(next, acc), value.clone()),
+      ListNode::Node { value, next } => {
+        insert_at_end_node_aux(&rev_node_aux(next, acc), value.clone())
+      }
     }
   }
 
@@ -71,10 +139,10 @@ mod private {
     match (n1, n2) {
       (ListNode::Empty, ListNode::Empty) => acc,
       (_, ListNode::Node { value, next }) => {
-        concat_nodes_aux(n1, next, insert_node_aux(&acc, value.clone()))
+        concat_nodes_aux(n1, next, insert_at_end_node_aux(&acc, value.clone()))
       }
       (ListNode::Node { value, next }, _) => {
-        concat_nodes_aux(next, n2, insert_node_aux(&acc, value.clone()))
+        concat_nodes_aux(next, n2, insert_at_end_node_aux(&acc, value.clone()))
       }
     }
   }
@@ -92,9 +160,9 @@ mod private {
       ListNode::Empty => (acc1, acc2),
       ListNode::Node { value, next } => {
         if f(value) {
-          split_node_aux(next, f, acc1, insert_node_aux(&acc2, value.clone()))
+          split_node_aux(next, f, acc1, insert_at_end_node_aux(&acc2, value.clone()))
         } else {
-          split_node_aux(next, f, insert_node_aux(&acc1, value.clone()), acc2)
+          split_node_aux(next, f, insert_at_end_node_aux(&acc1, value.clone()), acc2)
         }
       }
     }
@@ -174,7 +242,7 @@ mod private {
       ListNode::Empty => acc,
       ListNode::Node { value, next } => {
         if f(value) {
-          filter_node_aux(next, f, insert_node_aux(&acc, value.clone()))
+          filter_node_aux(next, f, insert_at_end_node_aux(&acc, value.clone()))
         } else {
           filter_node_aux(next, f, acc)
         }
@@ -204,9 +272,27 @@ where
     matches!(list.root, ListNode::Empty)
   }
 
-  pub fn insert(list: &Self, item: T) -> Self {
+  pub fn insert_at_beginning(list: &Self, item: T) -> Self {
     Self {
-      root: private::insert_node_aux(&list.root, item),
+      root: private::insert_at_beginning_node_aux(&list.root, item),
+    }
+  }
+
+  pub fn insert_at_end(list: &Self, item: T) -> Self {
+    Self {
+      root: private::insert_at_end_node_aux(&list.root, item),
+    }
+  }
+
+  pub fn insert_before(list: &Self, item: T, before: &T) -> Self {
+    Self {
+      root: private::insert_before_node_aux(&list.root, item, before),
+    }
+  }
+
+  pub fn insert_after(list: &Self, item: T, after: &T) -> Self {
+    Self {
+      root: private::insert_after_node_aux(&list.root, item, after),
     }
   }
 

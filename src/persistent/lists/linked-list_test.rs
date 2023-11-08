@@ -57,13 +57,13 @@ mod is_empty {
 }
 
 #[cfg(test)]
-mod insert {
+mod insert_at_beginning {
   use super::*;
 
   #[test]
   fn to_empty() {
     let list = setup::linked_list_empty();
-    let op = LinkedList::insert(&list, 0);
+    let op = LinkedList::insert_at_beginning(&list, 0);
     let expected = LinkedList {
       root: setup::node(0, list.root),
     };
@@ -73,13 +73,132 @@ mod insert {
   #[test]
   fn to_filled() {
     let list = setup::linked_list_filled();
-    let op = LinkedList::insert(&list, 4);
+    let op = LinkedList::insert_at_beginning(&list, -1);
+    let expected = LinkedList {
+      root: setup::node(-1, list.root),
+    };
+    assert_eq!(op, expected)
+  }
+}
+
+#[cfg(test)]
+mod insert_at_end {
+  use super::*;
+
+  #[test]
+  fn to_empty() {
+    let list = setup::linked_list_empty();
+    let op = LinkedList::insert_at_end(&list, 0);
+    let expected = LinkedList {
+      root: setup::node(0, list.root),
+    };
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled() {
+    let list = setup::linked_list_filled();
+    let op = LinkedList::insert_at_end(&list, 4);
     let expected = LinkedList {
       root: setup::node(
         0,
         setup::node(
           1,
           setup::node(2, setup::node(3, setup::node(4, ListNode::Empty))),
+        ),
+      ),
+    };
+    assert_eq!(op, expected)
+  }
+}
+
+#[cfg(test)]
+mod insert_before {
+  use super::*;
+
+  #[test]
+  fn to_empty() {
+    let list = setup::linked_list_empty();
+    let op = LinkedList::insert_before(&list, 0, &4);
+    let expected = LinkedList {
+      root: setup::node(0, list.root),
+    };
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_without_found_item() {
+    let list = setup::linked_list_filled();
+    let op = LinkedList::insert_before(&list, 6, &5);
+    let expected = LinkedList {
+      root: setup::node(
+        0,
+        setup::node(
+          1,
+          setup::node(2, setup::node(3, setup::node(6, ListNode::Empty))),
+        ),
+      ),
+    };
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_with_found_item() {
+    let list = setup::linked_list_filled();
+    let op = LinkedList::insert_before(&list, 4, &2);
+    let expected = LinkedList {
+      root: setup::node(
+        0,
+        setup::node(
+          1,
+          setup::node(4, setup::node(2, setup::node(3, ListNode::Empty))),
+        ),
+      ),
+    };
+    assert_eq!(op, expected)
+  }
+}
+
+#[cfg(test)]
+mod insert_after {
+  use super::*;
+
+  #[test]
+  fn to_empty() {
+    let list = setup::linked_list_empty();
+    let op = LinkedList::insert_after(&list, 0, &1);
+    let expected = LinkedList {
+      root: setup::node(0, list.root),
+    };
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_without_found_item() {
+    let list = setup::linked_list_filled();
+    let op = LinkedList::insert_after(&list, 6, &5);
+    let expected = LinkedList {
+      root: setup::node(
+        0,
+        setup::node(
+          1,
+          setup::node(2, setup::node(3, setup::node(6, ListNode::Empty))),
+        ),
+      ),
+    };
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_with_found_item() {
+    let list = setup::linked_list_filled();
+    let op = LinkedList::insert_after(&list, 4, &2);
+    let expected = LinkedList {
+      root: setup::node(
+        0,
+        setup::node(
+          1,
+          setup::node(2, setup::node(4, setup::node(3, ListNode::Empty))),
         ),
       ),
     };
