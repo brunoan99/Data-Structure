@@ -230,6 +230,51 @@ mod remove {
 }
 
 #[cfg(test)]
+mod remove_first {
+  use super::*;
+
+  #[test]
+  fn to_empty() {
+    let list = setup::linked_list_empty();
+    let op = LinkedList::remove_first(&list);
+    let expected = list;
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled() {
+    let list = setup::linked_list_filled();
+    let op = LinkedList::remove_first(&list);
+    let expected = LinkedList {
+      root: setup::node(1, setup::node(2, setup::node(3, ListNode::Empty))),
+    };
+    assert_eq!(op, expected)
+  }
+}
+#[cfg(test)]
+mod remove_last {
+  use super::*;
+
+  #[test]
+  fn to_empty() {
+    let list = setup::linked_list_empty();
+    let op = LinkedList::remove_last(&list);
+    let expected = list;
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled() {
+    let list = setup::linked_list_filled();
+    let op = LinkedList::remove_last(&list);
+    let expected = LinkedList {
+      root: setup::node(0, setup::node(1, setup::node(2, ListNode::Empty))),
+    };
+    assert_eq!(op, expected)
+  }
+}
+
+#[cfg(test)]
 mod len {
   use super::*;
 

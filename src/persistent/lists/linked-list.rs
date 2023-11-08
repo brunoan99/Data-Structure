@@ -113,6 +113,32 @@ mod private {
     }
   }
 
+  pub fn remove_first_node_aux<T>(node: &ListNode<T>) -> ListNode<T>
+  where
+    T: PartialEq + Clone,
+  {
+    match node {
+      ListNode::Empty => ListNode::Empty,
+      ListNode::Node { value: _, next } => *next.clone(),
+    }
+  }
+
+  pub fn remove_last_node_aux<T>(node: &ListNode<T>) -> ListNode<T>
+  where
+    T: PartialEq + Clone + std::fmt::Debug,
+  {
+    match node {
+      ListNode::Empty => ListNode::Empty,
+      ListNode::Node { value, next } => match &*next.clone() {
+        ListNode::Node { .. } => ListNode::Node {
+          value: value.clone(),
+          next: Box::new(remove_last_node_aux(next)),
+        },
+        ListNode::Empty => ListNode::Empty,
+      },
+    }
+  }
+
   pub fn len_aux<T>(node: &ListNode<T>, acc: i32) -> i32 {
     match node {
       ListNode::Empty => acc,
@@ -260,7 +286,7 @@ mod private {
 
 impl<T> LinkedList<T>
 where
-  T: PartialEq + Clone + Copy,
+  T: PartialEq + Clone + Copy + std::fmt::Debug,
 {
   pub fn new() -> Self {
     Self {
@@ -299,6 +325,18 @@ where
   pub fn remove(list: &Self, item: T) -> Self {
     Self {
       root: private::remove_node_aux(&list.root, item),
+    }
+  }
+
+  pub fn remove_first(list: &Self) -> Self {
+    Self {
+      root: private::remove_first_node_aux(&list.root),
+    }
+  }
+
+  pub fn remove_last(list: &Self) -> Self {
+    Self {
+      root: private::remove_last_node_aux(&list.root),
     }
   }
 
