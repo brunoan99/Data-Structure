@@ -5,22 +5,17 @@ mod setup {
 
   pub type LinkedListT = LinkedList<i32>;
 
-  pub fn node<T>(value: T, next: ListNode<T>) -> ListNode<T> {
-    ListNode::Node {
-      value,
-      next: Box::new(next),
-    }
+  pub fn node<T>(value: T, next: Link<T>) -> Link<T> {
+    Some(Box::new(ListNode { value, next: next }))
   }
 
   pub fn linked_list_empty() -> LinkedListT {
-    LinkedListT {
-      root: ListNode::Empty,
-    }
+    LinkedListT { root: None }
   }
 
   pub fn linked_list_filled() -> LinkedListT {
     LinkedListT {
-      root: node(0, node(1, node(2, node(3, ListNode::Empty)))),
+      root: node(0, node(1, node(2, node(3, None)))),
     }
   }
 }
@@ -102,10 +97,7 @@ mod insert_at_end {
     let expected = LinkedList {
       root: setup::node(
         0,
-        setup::node(
-          1,
-          setup::node(2, setup::node(3, setup::node(4, ListNode::Empty))),
-        ),
+        setup::node(1, setup::node(2, setup::node(3, setup::node(4, None)))),
       ),
     };
     assert_eq!(op, expected)
@@ -120,9 +112,7 @@ mod insert_before {
   fn to_empty() {
     let list = setup::linked_list_empty();
     let op = LinkedList::insert_before(&list, 0, &4);
-    let expected = LinkedList {
-      root: setup::node(0, list.root),
-    };
+    let expected = Err(InsertError::BeforeItemNotFound);
     assert_eq!(op, expected)
   }
 
@@ -130,15 +120,7 @@ mod insert_before {
   fn to_filled_without_found_item() {
     let list = setup::linked_list_filled();
     let op = LinkedList::insert_before(&list, 6, &5);
-    let expected = LinkedList {
-      root: setup::node(
-        0,
-        setup::node(
-          1,
-          setup::node(2, setup::node(3, setup::node(6, ListNode::Empty))),
-        ),
-      ),
-    };
+    let expected = Err(InsertError::BeforeItemNotFound);
     assert_eq!(op, expected)
   }
 
@@ -146,15 +128,12 @@ mod insert_before {
   fn to_filled_with_found_item() {
     let list = setup::linked_list_filled();
     let op = LinkedList::insert_before(&list, 4, &2);
-    let expected = LinkedList {
+    let expected = Ok(LinkedList {
       root: setup::node(
         0,
-        setup::node(
-          1,
-          setup::node(4, setup::node(2, setup::node(3, ListNode::Empty))),
-        ),
+        setup::node(1, setup::node(4, setup::node(2, setup::node(3, None)))),
       ),
-    };
+    });
     assert_eq!(op, expected)
   }
 }
@@ -167,9 +146,7 @@ mod insert_after {
   fn to_empty() {
     let list = setup::linked_list_empty();
     let op = LinkedList::insert_after(&list, 0, &1);
-    let expected = LinkedList {
-      root: setup::node(0, list.root),
-    };
+    let expected = Err(InsertError::AfterItemNotFound);
     assert_eq!(op, expected)
   }
 
@@ -177,15 +154,7 @@ mod insert_after {
   fn to_filled_without_found_item() {
     let list = setup::linked_list_filled();
     let op = LinkedList::insert_after(&list, 6, &5);
-    let expected = LinkedList {
-      root: setup::node(
-        0,
-        setup::node(
-          1,
-          setup::node(2, setup::node(3, setup::node(6, ListNode::Empty))),
-        ),
-      ),
-    };
+    let expected = Err(InsertError::AfterItemNotFound);
     assert_eq!(op, expected)
   }
 
@@ -193,38 +162,12 @@ mod insert_after {
   fn to_filled_with_found_item() {
     let list = setup::linked_list_filled();
     let op = LinkedList::insert_after(&list, 4, &2);
-    let expected = LinkedList {
+    let expected = Ok(LinkedList {
       root: setup::node(
         0,
-        setup::node(
-          1,
-          setup::node(2, setup::node(4, setup::node(3, ListNode::Empty))),
-        ),
+        setup::node(1, setup::node(2, setup::node(4, setup::node(3, None)))),
       ),
-    };
-    assert_eq!(op, expected)
-  }
-}
-
-#[cfg(test)]
-mod remove {
-  use super::*;
-
-  #[test]
-  fn to_empty() {
-    let list = setup::linked_list_empty();
-    let op = LinkedList::remove(&list, 0);
-    let expected = list;
-    assert_eq!(op, expected)
-  }
-
-  #[test]
-  fn to_filled() {
-    let list = setup::linked_list_filled();
-    let op = LinkedList::remove(&list, 2);
-    let expected = LinkedList {
-      root: setup::node(0, setup::node(1, setup::node(3, ListNode::Empty))),
-    };
+    });
     assert_eq!(op, expected)
   }
 }
@@ -236,18 +179,18 @@ mod remove_first {
   #[test]
   fn to_empty() {
     let list = setup::linked_list_empty();
-    let op = LinkedList::remove_first(&list);
-    let expected = list;
+    let op = LinkedList::remove_at_beginning(&list);
+    let expected = Err(RemoveError::EmptyList);
     assert_eq!(op, expected)
   }
 
   #[test]
   fn to_filled() {
     let list = setup::linked_list_filled();
-    let op = LinkedList::remove_first(&list);
-    let expected = LinkedList {
-      root: setup::node(1, setup::node(2, setup::node(3, ListNode::Empty))),
-    };
+    let op = LinkedList::remove_at_beginning(&list);
+    let expected = Ok(LinkedList {
+      root: setup::node(1, setup::node(2, setup::node(3, None))),
+    });
     assert_eq!(op, expected)
   }
 }
@@ -258,18 +201,49 @@ mod remove_last {
   #[test]
   fn to_empty() {
     let list = setup::linked_list_empty();
-    let op = LinkedList::remove_last(&list);
-    let expected = list;
+    let op = LinkedList::remove_at_end(&list);
+    let expected = Err(RemoveError::EmptyList);
     assert_eq!(op, expected)
   }
 
   #[test]
   fn to_filled() {
     let list = setup::linked_list_filled();
-    let op = LinkedList::remove_last(&list);
-    let expected = LinkedList {
-      root: setup::node(0, setup::node(1, setup::node(2, ListNode::Empty))),
-    };
+    let op = LinkedList::remove_at_end(&list);
+    let expected = Ok(LinkedList {
+      root: setup::node(0, setup::node(1, setup::node(2, None))),
+    });
+    assert_eq!(op, expected)
+  }
+}
+
+#[cfg(test)]
+mod remove_item {
+  use super::*;
+
+  #[test]
+  fn to_empty() {
+    let list = setup::linked_list_empty();
+    let op = LinkedList::remove_item(&list, 0);
+    let expected = Err(RemoveError::EmptyList);
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_without_found_item() {
+    let list = setup::linked_list_filled();
+    let op = LinkedList::remove_item(&list, 4);
+    let expected = Err(RemoveError::ItemNotFound);
+    assert_eq!(op, expected)
+  }
+
+  #[test]
+  fn to_filled_with_found_item() {
+    let list = setup::linked_list_filled();
+    let op = LinkedList::remove_item(&list, 2);
+    let expected = Ok(LinkedList {
+      root: setup::node(0, setup::node(1, setup::node(3, None))),
+    });
     assert_eq!(op, expected)
   }
 }
@@ -301,9 +275,7 @@ mod rev {
   fn to_empty() {
     let list = setup::linked_list_empty();
     let op = LinkedList::rev(&list);
-    let expected = LinkedList {
-      root: ListNode::Empty,
-    };
+    let expected = LinkedList { root: None };
     assert_eq!(op, expected)
   }
 
@@ -312,10 +284,7 @@ mod rev {
     let list = setup::linked_list_filled();
     let op = LinkedList::rev(&list);
     let expected = LinkedList {
-      root: setup::node(
-        3,
-        setup::node(2, setup::node(1, setup::node(0, ListNode::Empty))),
-      ),
+      root: setup::node(3, setup::node(2, setup::node(1, setup::node(0, None)))),
     };
     assert_eq!(op, expected)
   }
@@ -330,9 +299,7 @@ mod concat {
     let l1 = setup::linked_list_empty();
     let l2 = setup::linked_list_empty();
     let op = LinkedList::concat(&l1, &l2);
-    let expected = LinkedList {
-      root: ListNode::Empty,
-    };
+    let expected = LinkedList { root: None };
     assert_eq!(op, expected)
   }
 
@@ -341,9 +308,7 @@ mod concat {
     let l1 = setup::linked_list_empty();
     let l2 = setup::linked_list_empty();
     let op = LinkedList::concat(&l1, &l2);
-    let expected = LinkedList {
-      root: ListNode::Empty,
-    };
+    let expected = LinkedList { root: None };
     assert_eq!(op, expected)
   }
 
@@ -352,9 +317,7 @@ mod concat {
     let l1 = setup::linked_list_empty();
     let l2 = setup::linked_list_empty();
     let op = LinkedList::concat(&l1, &l2);
-    let expected = LinkedList {
-      root: ListNode::Empty,
-    };
+    let expected = LinkedList { root: None };
     assert_eq!(op, expected)
   }
 
@@ -363,9 +326,7 @@ mod concat {
     let l1 = setup::linked_list_empty();
     let l2 = setup::linked_list_empty();
     let op = LinkedList::concat(&l1, &l2);
-    let expected = LinkedList {
-      root: ListNode::Empty,
-    };
+    let expected = LinkedList { root: None };
     assert_eq!(op, expected)
   }
 }
@@ -378,14 +339,7 @@ mod split {
   fn to_empty() {
     let list = setup::linked_list_empty();
     let op = LinkedList::split(&list, |_| true);
-    let expected = (
-      LinkedList {
-        root: ListNode::Empty,
-      },
-      LinkedList {
-        root: ListNode::Empty,
-      },
-    );
+    let expected = (LinkedList { root: None }, LinkedList { root: None });
     assert_eq!(op, expected)
   }
 
@@ -395,10 +349,10 @@ mod split {
     let op = LinkedList::split(&list, |item| item % 2 == 0);
     let expected = (
       LinkedList {
-        root: setup::node(1, setup::node(3, ListNode::Empty)),
+        root: setup::node(1, setup::node(3, None)),
       },
       LinkedList {
-        root: setup::node(0, setup::node(2, ListNode::Empty)),
+        root: setup::node(0, setup::node(2, None)),
       },
     );
     assert_eq!(op, expected)
@@ -479,7 +433,7 @@ mod find {
   fn to_filled_with_true_return() {
     let list = setup::linked_list_filled();
     let op = LinkedList::find(&list, |item| item > &1);
-    assert_eq!(op, Some(&2))
+    assert_eq!(op, Some(2))
   }
 }
 
@@ -505,7 +459,7 @@ mod find_r {
   fn to_filled_with_true_return() {
     let list = setup::linked_list_filled();
     let op = LinkedList::find_r(&list, |item| item > &1);
-    assert_eq!(op, Some(&3))
+    assert_eq!(op, Some(3))
   }
 }
 
@@ -517,9 +471,7 @@ mod map {
   fn to_empty() {
     let list = setup::linked_list_empty();
     let op = LinkedList::map(&list, |item| item + 1);
-    let expected = LinkedList {
-      root: ListNode::Empty,
-    };
+    let expected = LinkedList { root: None };
     assert_eq!(op, expected)
   }
 
@@ -528,10 +480,7 @@ mod map {
     let list = setup::linked_list_filled();
     let op = LinkedList::map(&list, |item| item + 1);
     let expected = LinkedList {
-      root: setup::node(
-        1,
-        setup::node(2, setup::node(3, setup::node(4, ListNode::Empty))),
-      ),
+      root: setup::node(1, setup::node(2, setup::node(3, setup::node(4, None)))),
     };
     assert_eq!(op, expected)
   }
@@ -545,9 +494,7 @@ mod filter {
   fn to_empty() {
     let list = setup::linked_list_empty();
     let op = LinkedList::filter(&list, |_| false);
-    let expected = LinkedList {
-      root: ListNode::Empty,
-    };
+    let expected = LinkedList { root: None };
     assert_eq!(op, expected)
   }
 
@@ -555,9 +502,7 @@ mod filter {
   fn to_filled_only_false_return() {
     let list = setup::linked_list_filled();
     let op = LinkedList::filter(&list, |item| item > &3);
-    let expected = LinkedList {
-      root: ListNode::Empty,
-    };
+    let expected = LinkedList { root: None };
     assert_eq!(op, expected)
   }
 
@@ -566,7 +511,7 @@ mod filter {
     let list = setup::linked_list_filled();
     let op = LinkedList::filter(&list, |item| item > &1);
     let expected = LinkedList {
-      root: setup::node(2, setup::node(3, ListNode::Empty)),
+      root: setup::node(2, setup::node(3, None)),
     };
     assert_eq!(op, expected)
   }

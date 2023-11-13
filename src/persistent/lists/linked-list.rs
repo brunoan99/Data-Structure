@@ -1,218 +1,257 @@
+type Link<T> = Option<Box<ListNode<T>>>;
+
 #[derive(Clone, PartialEq, Debug)]
-pub enum ListNode<T> {
-  Empty,
-  Node { value: T, next: Box<ListNode<T>> },
+pub struct ListNode<T> {
+  value: T,
+  next: Link<T>,
 }
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct LinkedList<T> {
-  root: ListNode<T>,
+  root: Link<T>,
+}
+
+#[derive(PartialEq, Debug)]
+pub enum InsertError {
+  BeforeItemNotFound,
+  AfterItemNotFound,
+}
+
+#[derive(PartialEq, Debug)]
+pub enum RemoveError {
+  EmptyList,
+  ItemNotFound,
 }
 
 mod private {
   use super::*;
 
-  pub fn insert_at_beginning_node_aux<T>(node: &ListNode<T>, item: T) -> ListNode<T>
+  pub fn insert_at_beginning_node_aux<T>(node: &Link<T>, item: T) -> Link<T>
   where
     T: Clone,
   {
-    ListNode::Node {
+    Some(Box::new(ListNode {
       value: item,
-      next: Box::new(node.clone()),
-    }
+      next: node.clone(),
+    }))
   }
 
-  pub fn insert_at_end_node_aux<T>(node: &ListNode<T>, item: T) -> ListNode<T>
+  pub fn insert_at_end_node_aux<T>(node: &Link<T>, item: T) -> Link<T>
   where
-    T: Clone,
+    T: Copy,
   {
     match node {
-      ListNode::Empty => ListNode::Node {
+      None => Some(Box::new(ListNode {
         value: item,
-        next: Box::new(ListNode::Empty),
-      },
-      ListNode::Node { value, next } => ListNode::Node {
-        value: value.clone(),
-        next: Box::new(insert_at_end_node_aux(next, item)),
-      },
+        next: None,
+      })),
+      Some(node) => Some(Box::new(ListNode {
+        value: node.value,
+        next: insert_at_end_node_aux(&node.next, item),
+      })),
     }
   }
 
-  pub fn insert_before_node_aux<T>(node: &ListNode<T>, item: T, before: &T) -> ListNode<T>
+  pub fn insert_before_node_aux<T>(
+    node: &Link<T>,
+    item: T,
+    before: &T,
+  ) -> Result<Link<T>, InsertError>
   where
-    T: PartialEq + Clone,
+    T: PartialEq + Copy,
   {
     match node {
-      ListNode::Node { value, next } => {
-        if value == before {
-          ListNode::Node {
+      Some(inner_node) => {
+        if &inner_node.value == before {
+          Ok(Some(Box::new(ListNode {
             value: item,
-            next: Box::new(ListNode::Node {
-              value: value.clone(),
-              next: next.clone(),
-            }),
-          }
+            next: Some(Box::new(ListNode {
+              value: inner_node.value,
+              next: inner_node.next.clone(),
+            })),
+          })))
         } else {
-          ListNode::Node {
-            value: value.clone(),
-            next: Box::new(insert_before_node_aux(next, item, before)),
+          match insert_before_node_aux(&inner_node.next, item, before) {
+            Ok(link) => Ok(Some(Box::new(ListNode {
+              value: inner_node.value,
+              next: link,
+            }))),
+            Err(err) => Err(err),
           }
         }
       }
-      ListNode::Empty => ListNode::Node {
-        value: item,
-        next: Box::new(ListNode::Empty),
-      },
+      None => Err(InsertError::BeforeItemNotFound),
     }
   }
 
-  pub fn insert_after_node_aux<T>(node: &ListNode<T>, item: T, after: &T) -> ListNode<T>
+  pub fn insert_after_node_aux<T>(
+    node: &Link<T>,
+    item: T,
+    after: &T,
+  ) -> Result<Link<T>, InsertError>
   where
-    T: PartialEq + Clone,
+    T: PartialEq + Copy,
   {
     match node {
-      ListNode::Node { value, next } => {
-        if value == after {
-          ListNode::Node {
-            value: value.clone(),
-            next: Box::new(ListNode::Node {
+      Some(inner_node) => {
+        if &inner_node.value == after {
+          Ok(Some(Box::new(ListNode {
+            value: inner_node.value,
+            next: Some(Box::new(ListNode {
               value: item,
-              next: next.clone(),
-            }),
-          }
+              next: inner_node.next.clone(),
+            })),
+          })))
         } else {
-          ListNode::Node {
-            value: value.clone(),
-            next: Box::new(insert_after_node_aux(next, item, after)),
+          match insert_after_node_aux(&inner_node.next, item, after) {
+            Ok(link) => Ok(Some(Box::new(ListNode {
+              value: inner_node.value,
+              next: link,
+            }))),
+            Err(err) => Err(err),
           }
         }
       }
-      ListNode::Empty => ListNode::Node {
-        value: item,
-        next: Box::new(ListNode::Empty),
-      },
+      None => Err(InsertError::AfterItemNotFound),
     }
   }
 
-  pub fn remove_node_aux<T>(node: &ListNode<T>, item: T) -> ListNode<T>
+  pub fn remove_item_node_aux<T>(node: &Link<T>, item: T) -> Result<Link<T>, RemoveError>
+  where
+    T: PartialEq + Copy,
+  {
+    match node {
+      None => Err(RemoveError::ItemNotFound),
+      Some(inner_node) => {
+        if inner_node.value == item {
+          Ok(inner_node.next.clone())
+        } else {
+          match remove_item_node_aux(&inner_node.next, item) {
+            Ok(link) => Ok(Some(Box::new(ListNode {
+              value: inner_node.value,
+              next: link,
+            }))),
+            Err(err) => Err(err),
+          }
+        }
+      }
+    }
+  }
+
+  pub fn remove_at_beginning_node_aux<T>(node: &Link<T>) -> Result<Link<T>, RemoveError>
   where
     T: PartialEq + Clone,
   {
     match node {
-      ListNode::Empty => ListNode::Empty,
-      ListNode::Node { value, next } => {
-        if value.clone() == item {
-          *next.to_owned()
-        } else {
-          ListNode::Node {
-            value: value.clone(),
-            next: Box::new(remove_node_aux(next, item)),
-          }
-        }
-      }
+      None => Err(RemoveError::EmptyList),
+      Some(inner_node) => Ok(inner_node.next.clone()),
     }
   }
 
-  pub fn remove_first_node_aux<T>(node: &ListNode<T>) -> ListNode<T>
+  pub fn remove_at_end_node_aux<T>(node: &Link<T>) -> Link<T>
   where
-    T: PartialEq + Clone,
+    T: PartialEq + Copy,
   {
     match node {
-      ListNode::Empty => ListNode::Empty,
-      ListNode::Node { value: _, next } => *next.clone(),
-    }
-  }
-
-  pub fn remove_last_node_aux<T>(node: &ListNode<T>) -> ListNode<T>
-  where
-    T: PartialEq + Clone + std::fmt::Debug,
-  {
-    match node {
-      ListNode::Empty => ListNode::Empty,
-      ListNode::Node { value, next } => match &*next.clone() {
-        ListNode::Node { .. } => ListNode::Node {
-          value: value.clone(),
-          next: Box::new(remove_last_node_aux(next)),
-        },
-        ListNode::Empty => ListNode::Empty,
+      None => None,
+      Some(inner_node) => match inner_node.next {
+        Some(_) => Some(Box::new(ListNode {
+          value: inner_node.value,
+          next: remove_at_end_node_aux(&inner_node.next),
+        })),
+        None => None,
       },
     }
   }
 
-  pub fn len_aux<T>(node: &ListNode<T>, acc: i32) -> i32 {
+  pub fn len_aux<T>(node: &Link<T>, acc: i32) -> i32 {
     match node {
-      ListNode::Empty => acc,
-      ListNode::Node { value: _, next } => len_aux(&*next, acc + 1),
+      None => acc,
+      Some(inner_node) => len_aux(&inner_node.next, acc + 1),
     }
   }
 
-  pub fn rev_node_aux<T>(node: &ListNode<T>, acc: ListNode<T>) -> ListNode<T>
+  pub fn rev_node_aux<T>(node: &Link<T>, acc: Link<T>) -> Link<T>
   where
-    T: Clone,
+    T: Copy,
   {
     match node {
-      ListNode::Empty => acc,
-      ListNode::Node { value, next } => {
-        insert_at_end_node_aux(&rev_node_aux(next, acc), value.clone())
+      None => acc,
+      Some(inner_node) => {
+        insert_at_end_node_aux(&rev_node_aux(&inner_node.next, acc), inner_node.value)
       }
     }
   }
 
-  pub fn concat_nodes_aux<T>(n1: &ListNode<T>, n2: &ListNode<T>, acc: ListNode<T>) -> ListNode<T>
+  pub fn concat_nodes_aux<T>(n1: &Link<T>, n2: &Link<T>, acc: Link<T>) -> Link<T>
   where
-    T: Clone,
+    T: Copy,
   {
     match (n1, n2) {
-      (ListNode::Empty, ListNode::Empty) => acc,
-      (_, ListNode::Node { value, next }) => {
-        concat_nodes_aux(n1, next, insert_at_end_node_aux(&acc, value.clone()))
-      }
-      (ListNode::Node { value, next }, _) => {
-        concat_nodes_aux(next, n2, insert_at_end_node_aux(&acc, value.clone()))
-      }
+      (None, None) => acc,
+      (_, Some(inner_node)) => concat_nodes_aux(
+        n1,
+        &inner_node.next,
+        insert_at_end_node_aux(&acc, inner_node.value),
+      ),
+      (Some(inner_node), _) => concat_nodes_aux(
+        &inner_node.next,
+        n2,
+        insert_at_end_node_aux(&acc, inner_node.value),
+      ),
     }
   }
 
   pub fn split_node_aux<T>(
-    node: &ListNode<T>,
+    node: &Link<T>,
     f: fn(&T) -> bool,
-    acc1: ListNode<T>,
-    acc2: ListNode<T>,
-  ) -> (ListNode<T>, ListNode<T>)
+    acc1: Link<T>,
+    acc2: Link<T>,
+  ) -> (Link<T>, Link<T>)
   where
-    T: Clone,
+    T: Copy,
   {
     match node {
-      ListNode::Empty => (acc1, acc2),
-      ListNode::Node { value, next } => {
-        if f(value) {
-          split_node_aux(next, f, acc1, insert_at_end_node_aux(&acc2, value.clone()))
+      None => (acc1, acc2),
+      Some(inner_node) => {
+        if f(&inner_node.value) {
+          split_node_aux(
+            &inner_node.next,
+            f,
+            acc1,
+            insert_at_end_node_aux(&acc2, inner_node.value),
+          )
         } else {
-          split_node_aux(next, f, insert_at_end_node_aux(&acc1, value.clone()), acc2)
+          split_node_aux(
+            &inner_node.next,
+            f,
+            insert_at_end_node_aux(&acc1, inner_node.value),
+            acc2,
+          )
         }
       }
     }
   }
 
-  pub fn any_node_aux<T>(node: &ListNode<T>, f: fn(&T) -> bool) -> bool {
+  pub fn any_node_aux<T>(node: &Link<T>, f: fn(&T) -> bool) -> bool {
     match node {
-      ListNode::Empty => false,
-      ListNode::Node { value, next } => {
-        if f(value) {
+      None => false,
+      Some(inner_node) => {
+        if f(&inner_node.value) {
           true
         } else {
-          any_node_aux(next, f)
+          any_node_aux(&inner_node.next, f)
         }
       }
     }
   }
 
-  pub fn all_node_aux<T>(node: &ListNode<T>, f: fn(&T) -> bool) -> bool {
+  pub fn all_node_aux<T>(node: &Link<T>, f: fn(&T) -> bool) -> bool {
     match node {
-      ListNode::Empty => true,
-      ListNode::Node { value, next } => {
-        if f(value) {
-          all_node_aux(next, f)
+      None => true,
+      Some(inner_node) => {
+        if f(&inner_node.value) {
+          all_node_aux(&inner_node.next, f)
         } else {
           false
         }
@@ -220,82 +259,86 @@ mod private {
     }
   }
 
-  pub fn find_node_aux<T>(node: &ListNode<T>, f: fn(&T) -> bool) -> Option<&T> {
-    match node {
-      ListNode::Empty => None,
-      ListNode::Node { value, next } => {
-        if f(value) {
-          Some(value)
-        } else {
-          find_node_aux(next, f)
-        }
-      }
-    }
-  }
-
-  pub fn find_r_node_aux<'a, T>(
-    node: &'a ListNode<T>,
-    f: fn(&T) -> bool,
-    acc: Option<&'a T>,
-  ) -> Option<&'a T> {
-    match node {
-      ListNode::Empty => acc,
-      ListNode::Node { value, next } => {
-        if f(value) {
-          find_r_node_aux(next, f, Some(value))
-        } else {
-          find_r_node_aux(next, f, acc)
-        }
-      }
-    }
-  }
-
-  pub fn map_node_aux<T, U>(node: &ListNode<T>, f: fn(&T) -> U) -> ListNode<U> {
-    match node {
-      ListNode::Empty => ListNode::<U>::Empty,
-      ListNode::Node { value, next } => ListNode::<U>::Node {
-        value: f(value),
-        next: Box::new(map_node_aux(next, f)),
-      },
-    }
-  }
-
-  pub fn filter_node_aux<T>(node: &ListNode<T>, f: fn(&T) -> bool, acc: ListNode<T>) -> ListNode<T>
+  pub fn find_node_aux<T>(node: &Link<T>, f: fn(&T) -> bool) -> Option<T>
   where
-    T: Clone,
+    T: Copy,
   {
     match node {
-      ListNode::Empty => acc,
-      ListNode::Node { value, next } => {
-        if f(value) {
-          filter_node_aux(next, f, insert_at_end_node_aux(&acc, value.clone()))
+      None => None,
+      Some(inner_node) => {
+        if f(&inner_node.value) {
+          Some(inner_node.value)
         } else {
-          filter_node_aux(next, f, acc)
+          find_node_aux(&inner_node.next, f)
         }
       }
     }
   }
 
-  pub fn reduce_node_aux<T, U>(node: &ListNode<T>, f: fn(&T, U) -> U, acc: U) -> U {
+  pub fn find_r_node_aux<T>(node: &Link<T>, f: fn(&T) -> bool, acc: Option<T>) -> Option<T>
+  where
+    T: Copy,
+  {
     match node {
-      ListNode::Empty => acc,
-      ListNode::Node { value, next } => reduce_node_aux(next, f, f(value, acc)),
+      None => acc,
+      Some(inner_node) => {
+        if f(&inner_node.value) {
+          find_r_node_aux(&inner_node.next, f, Some(inner_node.value))
+        } else {
+          find_r_node_aux(&inner_node.next, f, acc)
+        }
+      }
+    }
+  }
+
+  pub fn map_node_aux<T, U>(node: &Link<T>, f: fn(&T) -> U) -> Link<U> {
+    match node {
+      None => None,
+      Some(inner_node) => Some(Box::new(ListNode {
+        value: f(&inner_node.value),
+        next: map_node_aux(&inner_node.next, f),
+      })),
+    }
+  }
+
+  pub fn filter_node_aux<T>(node: &Link<T>, f: fn(&T) -> bool, acc: Link<T>) -> Link<T>
+  where
+    T: Clone + Copy,
+  {
+    match node {
+      None => acc,
+      Some(inner_node) => {
+        if f(&inner_node.value) {
+          filter_node_aux(
+            &inner_node.next,
+            f,
+            insert_at_end_node_aux(&acc, inner_node.value),
+          )
+        } else {
+          filter_node_aux(&inner_node.next, f, acc)
+        }
+      }
+    }
+  }
+
+  pub fn reduce_node_aux<T, U>(node: &Link<T>, f: fn(&T, U) -> U, acc: U) -> U {
+    match node {
+      None => acc,
+      Some(inner_node) => reduce_node_aux(&inner_node.next, f, f(&inner_node.value, acc)),
     }
   }
 }
 
 impl<T> LinkedList<T>
 where
-  T: PartialEq + Clone + Copy + std::fmt::Debug,
+  T: PartialEq + Clone + Copy,
 {
   pub fn new() -> Self {
-    Self {
-      root: ListNode::Empty,
-    }
+    Self { root: None }
   }
 
   pub fn is_empty(list: &Self) -> bool {
-    matches!(list.root, ListNode::Empty)
+    matches!(list.root, None)
   }
 
   pub fn insert_at_beginning(list: &Self, item: T) -> Self {
@@ -310,33 +353,43 @@ where
     }
   }
 
-  pub fn insert_before(list: &Self, item: T, before: &T) -> Self {
-    Self {
-      root: private::insert_before_node_aux(&list.root, item, before),
+  pub fn insert_before(list: &Self, item: T, before: &T) -> Result<Self, InsertError> {
+    match private::insert_before_node_aux(&list.root, item, before) {
+      Ok(link) => Ok(Self { root: link }),
+      Err(err) => Err(err),
     }
   }
 
-  pub fn insert_after(list: &Self, item: T, after: &T) -> Self {
-    Self {
-      root: private::insert_after_node_aux(&list.root, item, after),
+  pub fn insert_after(list: &Self, item: T, after: &T) -> Result<Self, InsertError> {
+    match private::insert_after_node_aux(&list.root, item, after) {
+      Ok(link) => Ok(Self { root: link }),
+      Err(err) => Err(err),
     }
   }
 
-  pub fn remove(list: &Self, item: T) -> Self {
-    Self {
-      root: private::remove_node_aux(&list.root, item),
+  pub fn remove_at_beginning(list: &Self) -> Result<Self, RemoveError> {
+    match private::remove_at_beginning_node_aux(&list.root) {
+      Ok(link) => Ok(Self { root: link }),
+      Err(err) => Err(err),
     }
   }
 
-  pub fn remove_first(list: &Self) -> Self {
-    Self {
-      root: private::remove_first_node_aux(&list.root),
+  pub fn remove_at_end(list: &Self) -> Result<Self, RemoveError> {
+    if let None = list.root {
+      return Err(RemoveError::EmptyList);
     }
+    Ok(Self {
+      root: private::remove_at_end_node_aux(&list.root),
+    })
   }
 
-  pub fn remove_last(list: &Self) -> Self {
-    Self {
-      root: private::remove_last_node_aux(&list.root),
+  pub fn remove_item(list: &Self, item: T) -> Result<Self, RemoveError> {
+    if let None = list.root {
+      return Err(RemoveError::EmptyList);
+    }
+    match private::remove_item_node_aux(&list.root, item) {
+      Ok(link) => Ok(Self { root: link }),
+      Err(err) => Err(err),
     }
   }
 
@@ -346,18 +399,18 @@ where
 
   pub fn rev(list: &Self) -> Self {
     Self {
-      root: private::rev_node_aux(&list.root, ListNode::Empty),
+      root: private::rev_node_aux(&list.root, None),
     }
   }
 
   pub fn concat(l1: &Self, l2: &Self) -> Self {
     Self {
-      root: private::concat_nodes_aux(&l1.root, &l2.root, ListNode::Empty),
+      root: private::concat_nodes_aux(&l1.root, &l2.root, None),
     }
   }
 
   pub fn split(list: &Self, f: fn(&T) -> bool) -> (Self, Self) {
-    let (n1, n2) = private::split_node_aux(&list.root, f, ListNode::Empty, ListNode::Empty);
+    let (n1, n2) = private::split_node_aux(&list.root, f, None, None);
     (Self { root: n1 }, Self { root: n2 })
   }
 
@@ -369,11 +422,11 @@ where
     private::all_node_aux(&list.root, f)
   }
 
-  pub fn find(list: &Self, f: fn(&T) -> bool) -> Option<&T> {
+  pub fn find(list: &Self, f: fn(&T) -> bool) -> Option<T> {
     private::find_node_aux(&list.root, f)
   }
 
-  pub fn find_r(list: &Self, f: fn(&T) -> bool) -> Option<&T> {
+  pub fn find_r(list: &Self, f: fn(&T) -> bool) -> Option<T> {
     private::find_r_node_aux(&list.root, f, None)
   }
 
@@ -388,7 +441,7 @@ where
 
   pub fn filter(list: &Self, f: fn(&T) -> bool) -> Self {
     Self {
-      root: private::filter_node_aux(&list.root, f, ListNode::Empty),
+      root: private::filter_node_aux(&list.root, f, None),
     }
   }
 
