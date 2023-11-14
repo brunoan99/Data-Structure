@@ -424,3 +424,75 @@ mod concat {
     setup::test_list(l1, expect)
   }
 }
+
+#[cfg(test)]
+mod iter {
+  use super::*;
+
+  #[test]
+  fn to_empty() {
+    let list = setup::linked_list_empty();
+    let mut iter = list.iter();
+    assert_eq!(iter.next(), None)
+  }
+
+  #[test]
+  fn to_filled() {
+    let list = setup::linked_list_filled();
+    let mut iter = list.iter();
+    assert_eq!(iter.next(), Some(&0));
+    assert_eq!(iter.next(), Some(&1));
+    assert_eq!(iter.next(), Some(&2));
+    assert_eq!(iter.next(), Some(&3));
+    assert_eq!(iter.next(), None)
+  }
+}
+
+#[cfg(test)]
+mod iter_mut {
+  use super::*;
+
+  #[test]
+  fn to_empty() {
+    let mut list = setup::linked_list_empty();
+    let mut iter = list.iter_mut();
+    assert_eq!(iter.next(), None)
+  }
+
+  #[test]
+  fn to_filled() {
+    let mut list = setup::linked_list_filled();
+    for element in list.iter_mut() {
+      *element += 10;
+    }
+    let mut iter = list.iter();
+    assert_eq!(iter.next(), Some(&10));
+    assert_eq!(iter.next(), Some(&11));
+    assert_eq!(iter.next(), Some(&12));
+    assert_eq!(iter.next(), Some(&13));
+    assert_eq!(iter.next(), None)
+  }
+}
+
+#[cfg(test)]
+mod into_inter {
+  use super::*;
+
+  #[test]
+  fn to_empty() {
+    let list = setup::linked_list_empty();
+    let mut iter = list.into_iter();
+    assert_eq!(iter.next(), None)
+  }
+
+  #[test]
+  fn to_filled() {
+    let list = setup::linked_list_filled();
+    let mut iter = list.into_iter();
+    assert_eq!(iter.next(), Some(0));
+    assert_eq!(iter.next(), Some(1));
+    assert_eq!(iter.next(), Some(2));
+    assert_eq!(iter.next(), Some(3));
+    assert_eq!(iter.next(), None)
+  }
+}

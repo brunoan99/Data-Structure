@@ -16,6 +16,7 @@ pub struct LinkedList<T> {
 
 pub struct Iter<'a, T: 'a> {
   root: &'a Link<T>,
+  marker: PhantomData<&'a T>,
 }
 
 impl<'a, T> Iterator for Iter<'a, T> {
@@ -58,13 +59,14 @@ pub struct IntoIter<T> {
   list: LinkedList<T>,
 }
 
-impl<T: Copy> Iterator for IntoIter<T> {
+impl<T> Iterator for IntoIter<T> {
   type Item = T;
 
-  fn next(&mut self) -> Option<Self::Item> {
+  fn next(&mut self) -> Option<T> {
     self.list.root.map(|node| unsafe {
       let node = &mut *node.as_ptr();
       self.list.root = node.next;
+      let node = Box::from_raw(node);
       node.value
     })
   }
@@ -105,8 +107,8 @@ mod private {
   }
 }
 
-impl<T: PartialEq + Copy + Clone> LinkedList<T> {
-  pub fn new() -> Self {
+impl<T> LinkedList<T> {
+  pub const fn new() -> Self {
     Self {
       root: None,
       marker: PhantomData,
@@ -140,7 +142,10 @@ impl<T: PartialEq + Copy + Clone> LinkedList<T> {
     }
   }
 
-  pub fn insert_before(&mut self, item: T, before: T) -> Result<(), InsertError> {
+  pub fn insert_before(&mut self, item: T, before: T) -> Result<(), InsertError>
+  where
+    T: PartialEq,
+  {
     unsafe {
       let mut ptr = self.root;
       let mut preptr: Link<T> = None;
@@ -161,7 +166,10 @@ impl<T: PartialEq + Copy + Clone> LinkedList<T> {
     }
   }
 
-  pub fn insert_after(&mut self, item: T, after: T) -> Result<(), InsertError> {
+  pub fn insert_after(&mut self, item: T, after: T) -> Result<(), InsertError>
+  where
+    T: PartialEq,
+  {
     unsafe {
       let mut ptr = self.root.and_then(|node| (*node.as_ptr()).next);
       let mut preptr = self.root;
@@ -204,7 +212,10 @@ impl<T: PartialEq + Copy + Clone> LinkedList<T> {
     }
   }
 
-  pub fn remove_item(&mut self, item: T) -> Result<(), RemoveError> {
+  pub fn remove_item(&mut self, item: T) -> Result<(), RemoveError>
+  where
+    T: PartialEq,
+  {
     unsafe {
       if let None = self.root {
         return Err(RemoveError::EmptyList);
@@ -237,7 +248,10 @@ impl<T: PartialEq + Copy + Clone> LinkedList<T> {
     count
   }
 
-  pub fn search(&self, item: T) -> Link<T> {
+  pub fn search(&self, item: T) -> Link<T>
+  where
+    T: PartialEq,
+  {
     unsafe {
       let mut ptr = self.root;
       while let Some(inner) = ptr {
@@ -273,6 +287,47 @@ impl<T: PartialEq + Copy + Clone> LinkedList<T> {
       tmp_node = unsafe { &mut (*inner_node.as_ptr()).next };
     }
     *tmp_node = list.root
+  }
+
+  pub fn iter(&self) -> Iter<'_, T> {
+    Iter {
+      root: &self.root,
+      marker: PhantomData,
+    }
+  }
+
+  pub fn iter_mut(&mut self) -> IterMut<'_, T> {
+    IterMut {
+      root: self.root,
+      marker: PhantomData,
+    }
+  }
+}
+
+impl<T> IntoIterator for LinkedList<T> {
+  type Item = T;
+  type IntoIter = IntoIter<T>;
+
+  fn into_iter(self) -> IntoIter<T> {
+    IntoIter { list: self }
+  }
+}
+
+impl<'a, T> IntoIterator for &'a LinkedList<T> {
+  type Item = &'a T;
+  type IntoIter = Iter<'a, T>;
+
+  fn into_iter(self) -> Iter<'a, T> {
+    self.iter()
+  }
+}
+
+impl<'a, T> IntoIterator for &'a mut LinkedList<T> {
+  type Item = &'a mut T;
+  type IntoIter = IterMut<'a, T>;
+
+  fn into_iter(self) -> IterMut<'a, T> {
+    self.iter_mut()
   }
 }
 
