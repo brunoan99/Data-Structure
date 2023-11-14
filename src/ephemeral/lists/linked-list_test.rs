@@ -338,6 +338,26 @@ mod len {
 }
 
 #[cfg(test)]
+mod search {
+  use super::*;
+
+  #[test]
+  fn to_empty() {
+    let list = setup::linked_list_empty();
+    let item = list.search(4);
+    assert_eq!(item, None)
+  }
+
+  #[test]
+  fn to_filled() {
+    let list = setup::linked_list_filled();
+    let item = list.search(2);
+    let value = unsafe { (*item.unwrap().as_ptr()).value };
+    assert_eq!(value, 2)
+  }
+}
+
+#[cfg(test)]
 mod rev {
   use super::*;
 

@@ -237,7 +237,7 @@ impl<T: PartialEq + Copy + Clone> LinkedList<T> {
     count
   }
 
-  pub fn search(&mut self, item: T) -> Link<T> {
+  pub fn search(&self, item: T) -> Link<T> {
     unsafe {
       let mut ptr = self.root;
       while let Some(inner) = ptr {
