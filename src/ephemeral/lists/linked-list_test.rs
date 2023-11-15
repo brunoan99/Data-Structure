@@ -470,7 +470,9 @@ mod iter_mut {
     assert_eq!(iter.next(), Some(&11));
     assert_eq!(iter.next(), Some(&12));
     assert_eq!(iter.next(), Some(&13));
-    assert_eq!(iter.next(), None)
+    assert_eq!(iter.next(), None);
+    let expected = vec![10, 11, 12, 13];
+    setup::test_list(list, expected)
   }
 }
 
